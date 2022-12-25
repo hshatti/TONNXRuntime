@@ -65,7 +65,7 @@ begin
   inputs['image'] := inTensor;        
 ```
 
-##### Inferance
+##### Inference
 
 ```
   var
