@@ -26,16 +26,16 @@
   original C++ onnxruntime library (link checked as of Sep-2022):
   https://github.com/microsoft/onnxruntime/tree/main/include/onnxruntime/core/session
 
-  the problem seems to be with the original C++ implementaion is that it uses a
-  trivial implementation of management operator to track the library pointers but
-  it can accindenly dispose them while they are still inscope because the
+  the problem seems to be with the original C++ code is that it uses a
+  trivial implementation of management operators to track the library pointers,
+  but it can accindenly dispose them while they are still in scope, because the
   <Base> implementation handsover the ownership of these pointers on every
-  assignment and clears it self instead of keeping track of each reference made
+  assignment, and clears it self instead of keeping track of each reference made
   or gone out of scope, I would choose to do the same thing in pascal but since
-  pascal is more well behaved I decided to implement a simple global pointer
-  housekeeper that keeps reference of everything in place, if any pointer
-  goes out of scope the ownwed reference will be managed and freed only if the
-  pointer is completly no longer used without compromizing the library
+  pascal is more well behaved I decided to implement a simple global
+  housekeeper that keeps everything in tracked, if any pointer
+  goes out of scope, the owned reference will be managed and freed only if the
+  pointer is completely no longer used without compromizing the library
   performance.
 
 

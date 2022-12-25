@@ -40,7 +40,7 @@ From you **Lazarus** or **Delphi** project at the header of the pascal unit incl
   *****************************************************************
       Check your model requirements for input/output 
       names and value dimensions before preparing the inputs.
-      to explorer the model before preparing use :
+      to explore the model before preparing use :
         session.GetInputCount and session.GetOutputCount
         session.GetInputName and session.GetOutputName
         session.GetInputTypeInfo and session.GetOutputTypeInfo
@@ -53,15 +53,15 @@ From you **Lazarus** or **Delphi** project at the header of the pascal unit incl
 ```
 var 
   x,y:integer;
-  data : array of array of single;
+  imageData : array of array of single;
   inTensor : TORTTensor<single> ; 
   inputs : TORTNameValueList  ;
 begin
   // assuming the model input name is 'image' and the tensor shape is [width, height]
   inTensor := TORTTensor<single>.Create([width, height{, depth ,etc...}]);
-  for y:=0 to tensor.shape[1] do
-      for x:=0 to tensor.shape[0] do 
-          tensor.index2[x, y]:= data[x, y];  // your float values
+  for y:=0 to inTensor.shape[1]-1 do
+      for x:=0 to inTensor.shape[0]-1 do
+          inTensor.index2[x, y]:= imageData[x, y];  // your float values
   inputs['image'] := inTensor;        
 ```
 
