@@ -89,7 +89,7 @@ begin
 #### More information about ONNXRuntime API
 
 * Check the [Faster RCNN10 example](/examples/FasterRCNN) folder
-  Download `FasterRCNN10.onnx [here](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/faster-rcnn/model)
+	Download `FasterRCNN10.onnx` from [here](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/faster-rcnn/model)
 * Check [ONNXRuntime API Documents](https://onnxruntime.ai/docs/api/)
   
 ---  
