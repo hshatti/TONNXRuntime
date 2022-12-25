@@ -7,7 +7,7 @@
 ### Introduction
 This is an implementation of Microsoft's [Open Neural Network Exchange](https://www.onnxruntime.ai/about.html) (ONNXRuntime) for [Freepascal 🐾](https://www.lazarus-ide.org) and [Delphi ⚔️](https://www.embarcadero.com/products/delphi/starter)
 
-ONNXRuntime libraries comes shipped with most of modern Windows releases after **Windows 8**, as of the time this is written version 1.13.1 the most recent release, it can be installed on **MacOS** and most of **Linux** releases, for development and updates please visit [ONNXRuntime Github Page](https://github.com/microsoft/onnxruntime/).
+ONNXRuntime libraries comes shipped with most of modern Windows releases after **Windows 8**, as of the time this is written, version 1.13.1 is the most recent release, it can be installed on **MacOS** and most of **Linux** releases, for development and updates please visit [ONNXRuntime Github Page](https://github.com/microsoft/onnxruntime/).
 
 ### How to install libraries
 ##### Windows
