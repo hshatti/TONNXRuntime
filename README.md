@@ -2,14 +2,14 @@
   <img style="width :50%"src="https://onnxruntime.ai/images/svg/ONNX-Runtime-logo-white.svg" alt="ONNXRuntime for Freepascal / Delphi"</img>
 </p>
 
-## Microsoft ONNXRuntime AI and Machine Learning Library for Freepascal / Delphi
+### Microsoft ONNXRuntime AI and Machine Learning Library for Freepascal / Delphi
 
-## Introduction
+### Introduction
 This is an implementation of Microsoft's [Open Neural Network Exchange](https://www.onnxruntime.ai/about.html) (ONNXRuntime) for [Freepascal 🐾](https://www.lazarus-ide.org) and [Delphi ⚔️](https://www.embarcadero.com/products/delphi/starter)
 
 ONNXRuntime libraries comes shipped with most of modern Windows releases after **Windows 8**, as of the time this is written version 1.13.1 the most recent release, it can be installed on **MacOS** and most of **Linux** releases, for development and updates please visit [ONNXRuntime Github Page](https://github.com/microsoft/onnxruntime/).
 
-## How to install libraries
+### How to install libraries
 ##### Windows
   
   `onnxruntime.dll` is already shipped with windows, you can find it in `%WINDIR%\SysWOW64\onnxruntime.dll` or`%WINDIR%\System32\onnxruntime.dll` 
@@ -20,9 +20,9 @@ ONNXRuntime libraries comes shipped with most of modern Windows releases after *
 
 
 
-## Usage
+### Usage
 
-From you **Lazarus** or **Delphi** project at the header of the pascal unit include the files
+From your **Lazarus** or **Delphi** project at the header of the pascal unit include the files
   ```
   unit formUnit;
   {$h+}
