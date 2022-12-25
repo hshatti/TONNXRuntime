@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="12"/>
+    <BuildModes Active="Debug"/>
+    <Units>
+      <Unit>
+        <Filename Value="FasterRCNN10.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="2"/>
+        <CursorPos Y="24"/>
+        <UsageCount Value="201"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="unit1.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="22" Y="19"/>
+        <UsageCount Value="201"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="include\onnxruntime.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="36"/>
+        <CursorPos X="35" Y="77"/>
+        <UsageCount Value="200"/>
+      </Unit>
+      <Unit>
+        <Filename Value="include\onnxruntime_training_c_api.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="8" Y="19"/>
+        <UsageCount Value="200"/>
+      </Unit>
+      <Unit>
+        <Filename Value="include\onnxruntime_training.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="54" Y="12"/>
+        <UsageCount Value="218"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\inc\systemh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="451"/>
+        <CursorPos X="9" Y="465"/>
+        <UsageCount Value="30"/>
+      </Unit>
+      <Unit>
+        <Filename Value="include\onnxruntime_pas_api.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="101"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\win\sysosh.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="3" Y="26"/>
+        <UsageCount Value="86"/>
+      </Unit>
+      <Unit>
+        <Filename Value="include\onnxruntime_cxx_api2pas.h"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="10"/>
+        <CursorPos X="39" Y="38"/>
+        <UsageCount Value="100"/>
+        <DefaultSyntaxHighlighter Value="C++"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\sysutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="256"/>
+        <CursorPos X="83" Y="269"/>
+        <UsageCount Value="104"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\syshelph.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="32" Y="4"/>
+        <UsageCount Value="125"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\inc\heaph.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="45"/>
+        <CursorPos X="16" Y="98"/>
+        <UsageCount Value="84"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\inc\heap.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="331"/>
+        <CursorPos X="3" Y="324"/>
+        <UsageCount Value="84"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\sysunih.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="11"/>
+        <CursorPos X="15" Y="50"/>
+        <UsageCount Value="84"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\packages\rtl-generics\src\inc\generics.dictionariesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="548"/>
+        <CursorPos X="14" Y="569"/>
+        <UsageCount Value="93"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\packages\rtl-generics\src\inc\generics.dictionaries.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="199"/>
+        <CursorPos X="20" Y="201"/>
+        <UsageCount Value="93"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\sysstr.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1158"/>
+        <CursorPos X="3" Y="1161"/>
+        <UsageCount Value="37"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\typinfo.pp"/>
+        <UnitName Value="TypInfo"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="200"/>
+        <CursorPos X="7" Y="230"/>
+        <UsageCount Value="32"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\inc\rttih.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="3" Y="22"/>
+        <UsageCount Value="32"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\win64\system.pp"/>
+        <UnitName Value="System"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="10" Y="39"/>
+        <UsageCount Value="30"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\win\syswinh.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="2" Y="27"/>
+        <UsageCount Value="30"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\lcl\interfaces\win32\win32memostrings.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="17"/>
+        <CursorPos Y="62"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1221"/>
+        <CursorPos X="20" Y="1228"/>
+        <UsageCount Value="43"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\lcl\include\canvas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="817"/>
+        <CursorPos X="14" Y="859"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="271"/>
+        <CursorPos X="3" Y="298"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\lcl\include\rasterimage.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="470"/>
+        <CursorPos X="3" Y="474"/>
+        <UsageCount Value="23"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\components\lazutils\lazmethodlist.pas"/>
+        <UnitName Value="LazMethodList"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="189"/>
+        <CursorPos Y="215"/>
+        <UsageCount Value="6"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\sysutils.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="154"/>
+        <CursorPos X="9" Y="158"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\rtl\objpas\sysutils\osutil.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="207"/>
+        <UsageCount Value="1"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\components\lazutils\dynamicarray.pas"/>
+        <UnitName Value="DynamicArray"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="2"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\components\lazutils\graphtype.pp"/>
+        <UnitName Value="GraphType"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="191"/>
+        <CursorPos X="15" Y="214"/>
+        <UsageCount Value="43"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\fpc\3.2.2\source\packages\rtl-generics\src\generics.collections.pas"/>
+        <UnitName Value="Generics.Collections"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="117"/>
+        <CursorPos X="14" Y="140"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\source\onnxruntime_training_c_api.pas"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="21" Y="21"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="24">
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="452" Column="15" TopLine="421"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="453" Column="15" TopLine="421"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="455" Column="13" TopLine="421"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="456" Column="13" TopLine="421"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="457" Column="13" TopLine="427"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="458" Column="15" TopLine="427"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="463" Column="21" TopLine="427"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="462" Column="24" TopLine="394"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="451" Column="23" TopLine="400"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="399" Column="17" TopLine="383"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="416" Column="23" TopLine="383"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="227" Column="15" TopLine="193"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="233" Column="60" TopLine="205"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="187" Column="102" TopLine="184"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="209" Column="52" TopLine="184"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="456" Column="33" TopLine="430"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="386" TopLine="362"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="472" Column="34" TopLine="52"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="466" Column="33" TopLine="428"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="474" Column="45" TopLine="452"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="470" Column="50" TopLine="452"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="387" Column="41" TopLine="364"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="435" Column="19" TopLine="371"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="354" Column="36"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="19" Column="22"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <Watches>
+      <Item>
+        <Expression Value="input.FData"/>
+      </Item>
+    </Watches>
+  </Debugging>
+</CONFIG>

@@ -1,0 +1,139 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 
+    'Make sure "FasterRCNN10.onnx" model file placed with the output ' +
+    'executable'
+  ClientHeight = 644
+  ClientWidth = 904
+  Fill.Color = claBlack
+  Fill.Kind = Solid
+  Position = Designed
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnShow = FormShow
+  DesignerMasterStyle = 0
+  object Panel1: TPanel
+    Align = Top
+    Size.Width = 904.000000000000000000
+    Size.Height = 37.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object ComboBox1: TComboBox
+      Align = Left
+      Position.X = 69.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 37.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      OnChange = ComboBox1Change
+    end
+    object Label1: TLabel
+      Align = Left
+      Size.Width = 69.000000000000000000
+      Size.Height = 37.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'Select a Model'
+      TabOrder = 2
+    end
+    object Button1: TButton
+      Align = Left
+      Position.X = 298.000000000000000000
+      Size.Width = 117.000000000000000000
+      Size.Height = 37.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      Text = 'Load Source Image'
+      OnClick = Button1Click
+    end
+    object CheckBox1: TCheckBox
+      Position.X = 352.000000000000000000
+      Position.Y = 8.000000000000000000
+      TabOrder = 4
+      Text = 'Stretched'
+      Visible = False
+      OnChange = CheckBox1Change
+    end
+    object Button2: TButton
+      Position.X = 528.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 5
+      Text = 'Test Tensor'
+    end
+    object Label2: TLabel
+      Align = Left
+      Position.X = 229.000000000000000000
+      Size.Width = 69.000000000000000000
+      Size.Height = 37.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'Then'
+      TabOrder = 1
+    end
+  end
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ShowSizeGrip = True
+    Align = Bottom
+    Position.Y = 491.000000000000000000
+    Size.Width = 904.000000000000000000
+    Size.Height = 153.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    Viewport.Width = 900.000000000000000000
+    Viewport.Height = 149.000000000000000000
+  end
+  object Panel2: TPanel
+    Align = Client
+    Size.Width = 904.000000000000000000
+    Size.Height = 446.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object Image1: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Left
+      Size.Width = 429.000000000000000000
+      Size.Height = 446.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object Splitter1: TSplitter
+      Align = Left
+      Cursor = crHSplit
+      MinSize = 20.000000000000000000
+      Position.X = 429.000000000000000000
+      Size.Width = 8.000000000000000000
+      Size.Height = 446.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object Image2: TImage
+      MultiResBitmap = <
+        item
+        end>
+      Align = Client
+      Size.Width = 467.000000000000000000
+      Size.Height = 446.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+  object Splitter2: TSplitter
+    Align = Bottom
+    Cursor = crVSplit
+    MinSize = 20.000000000000000000
+    Position.Y = 483.000000000000000000
+    Size.Width = 904.000000000000000000
+    Size.Height = 8.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object OpenDlg: TOpenDialog
+    Left = 588
+    Top = 16
+  end
+end

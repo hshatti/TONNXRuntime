@@ -1,0 +1,188 @@
+object Form1: TForm1
+  Left = 736
+  Height = 901
+  Top = 228
+  Width = 1279
+  Caption = 'Make sure "FasterRCNN10.onnx" model file placed with the output executable'
+  ClientHeight = 901
+  ClientWidth = 1279
+  DesignTimePPI = 144
+  OnShow = FormShow
+  LCLVersion = '2.2.2.0'
+  object Panel2: TPanel
+    Left = 0
+    Height = 536
+    Top = 38
+    Width = 1279
+    Align = alClient
+    ClientHeight = 536
+    ClientWidth = 1279
+    Color = clBlack
+    FullRepaint = False
+    ParentColor = False
+    TabOrder = 2
+    object Splitter1: TSplitter
+      Left = 644
+      Height = 534
+      Top = 1
+      Width = 8
+      Color = clSilver
+      ParentColor = False
+    end
+    object ScrollBox1: TScrollBox
+      Left = 1
+      Height = 534
+      Top = 1
+      Width = 643
+      HorzScrollBar.Page = 135
+      VertScrollBar.Page = 135
+      Align = alLeft
+      ClientHeight = 530
+      ClientWidth = 639
+      TabOrder = 1
+      object Image1: TImage
+        Left = 0
+        Height = 530
+        Top = 0
+        Width = 639
+        AntialiasingMode = amOn
+        Align = alClient
+        AutoSize = True
+        Center = True
+        Proportional = True
+      end
+    end
+    object ScrollBox2: TScrollBox
+      Left = 652
+      Height = 534
+      Top = 1
+      Width = 626
+      HorzScrollBar.Page = 135
+      VertScrollBar.Page = 135
+      Align = alClient
+      ClientHeight = 530
+      ClientWidth = 622
+      TabOrder = 2
+      object Image2: TImage
+        Left = 0
+        Height = 530
+        Top = 0
+        Width = 622
+        AntialiasingMode = amOn
+        Align = alClient
+        AutoSize = True
+        Center = True
+        Proportional = True
+      end
+    end
+  end
+  object Memo1: TMemo
+    Left = 0
+    Height = 319
+    Top = 582
+    Width = 1279
+    Align = alBottom
+    Color = 4194304
+    Font.Color = clMoneyGreen
+    ParentFont = False
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 38
+    Top = 0
+    Width = 1279
+    Align = alTop
+    BevelOuter = bvNone
+    BorderStyle = bsSingle
+    ClientHeight = 34
+    ClientWidth = 1275
+    TabOrder = 1
+    object BitBtn1: TBitBtn
+      Left = 636
+      Height = 34
+      Top = 0
+      Width = 168
+      Align = alLeft
+      Caption = 'Load Source Image'
+      Enabled = False
+      OnClick = BitBtn1Click
+      TabOrder = 0
+    end
+    object ComboBox1: TComboBox
+      Left = 166
+      Height = 33
+      Top = 0
+      Width = 354
+      Align = alLeft
+      ItemHeight = 25
+      ItemIndex = 0
+      Items.Strings = (
+        '(Empty Model)'
+      )
+      OnChange = ComboBox1Change
+      TabOrder = 1
+      Text = '(Empty Model)'
+    end
+    object Label1: TLabel
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 166
+      Align = alLeft
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Select a Model '
+      Layout = tlCenter
+      ParentColor = False
+    end
+    object CheckBox1: TCheckBox
+      Left = 728
+      Height = 29
+      Top = 5
+      Width = 105
+      Caption = 'Stretched'
+      OnChange = CheckBox1Change
+      TabOrder = 2
+    end
+    object BitBtn2: TBitBtn
+      Left = 872
+      Height = 35
+      Top = -2
+      Width = 113
+      Caption = 'Test Tensor'
+      TabOrder = 3
+      Visible = False
+    end
+    object Label2: TLabel
+      Left = 520
+      Height = 34
+      Top = 0
+      Width = 116
+      Align = alLeft
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Then'
+      Layout = tlCenter
+      ParentColor = False
+    end
+  end
+  object Splitter2: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 8
+    Top = 574
+    Width = 1279
+    Align = alBottom
+    ResizeAnchor = akBottom
+  end
+  object OpenDlg: TOpenDialog
+    Filter = 'All Image Types (*.bmp, *.jpg, *.jpeg, *.png)|*.bmp;*.jpg;*.jpeg;*.png;*.tif;*tiff|All Files|*.*'
+    InitialDir = 'C:\development\Projects\Python\inspire\'
+    Left = 804
+  end
+  object SaveDlg: TSaveDialog
+    Left = 884
+  end
+end
