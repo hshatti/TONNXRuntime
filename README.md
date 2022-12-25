@@ -2,7 +2,7 @@
   <img style="width :50%"src="https://onnxruntime.ai/images/svg/ONNX-Runtime-logo-white.svg" alt="ONNXRuntime for Freepascal / Delphi"</img>
 </p>
 
-### Microsoft ONNXRuntime AI and Machine Learning Library for Freepascal / Delphi
+## Microsoft ONNXRuntime AI and Machine Learning Library for Freepascal / Delphi
 
 ### Introduction
 This is an implementation of Microsoft's [Open Neural Network Exchange](https://www.onnxruntime.ai/about.html) (ONNXRuntime) for [Freepascal 🐾](https://www.lazarus-ide.org) and [Delphi ⚔️](https://www.embarcadero.com/products/delphi/starter)
