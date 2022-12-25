@@ -35,7 +35,7 @@ From your **Lazarus** or **Delphi** project at the header of the pascal unit inc
   var 
     session : TORTSession;
   begin
-    session := TORTSession.Create("./mymodel/filname.onnx"); 
+    session := TORTSession.Create('./mymodel/filname.onnx'); 
   { 
   *****************************************************************
       Check your model requirements for input/output 
