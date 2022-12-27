@@ -10,7 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Unit1, onnxruntime_training_c_api, onnxruntime_training, unit2
+  Forms, Unit1, onnxruntime_training_c_api, onnxruntime_training
   { you can add units after this };
 
 {$R *.res}
