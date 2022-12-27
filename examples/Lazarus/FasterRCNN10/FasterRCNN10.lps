@@ -234,7 +234,7 @@
         <Filename Value="..\..\..\source\onnxruntime_training_c_api.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <CursorPos Y="10"/>
+        <CursorPos X="44" Y="13"/>
         <UsageCount Value="15"/>
         <Loaded Value="True"/>
       </Unit>
