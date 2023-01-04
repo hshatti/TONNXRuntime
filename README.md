@@ -23,7 +23,7 @@ ONNXRuntime libraries comes shipped with most of modern Windows releases after *
 ### Usage
 
 From your **Lazarus** or **Delphi** project at the header of the pascal unit include the files
-  ```
+  ```pascal
   unit formUnit;
   {$h+}
   
@@ -31,7 +31,7 @@ From your **Lazarus** or **Delphi** project at the header of the pascal unit inc
   uses onnxruntime_pas_api, onnxruntime, Classes etc... ;
   ```
 ##### Load a Model
-  ```
+  ```pascal
   var 
     session : TORTSession;
   begin
@@ -50,7 +50,7 @@ From your **Lazarus** or **Delphi** project at the header of the pascal unit inc
 
 ##### Prepare an input tensor with the desired shape using `TORTTensor<type>` and your inputs using `TORTNameValueList`
 
-```
+```pascal
 var 
   x,y:integer;
   imageData : array of array of single;
@@ -67,7 +67,7 @@ begin
 
 ##### Inference
 
-```
+```pascal
   var
     myDetection : array of single;
     i:integer;
