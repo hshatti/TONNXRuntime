@@ -66,6 +66,7 @@ __recovery/
 lib/
 backup/
 Win64/
+nopush/
 *.~*
 
 # Castalia statistics file (since XE7 Castalia is distributed with Delphi)
