@@ -1246,7 +1246,7 @@ end;
 function TOrderedKeyValueList<TK,TV>.GetValues( key: TK): TV;
 var i:integer;
 begin
-  i:= TTools.BinSearch<TK>(Keys ,key,Length(Keys));
+  i:= IndexOfKey(Key);
   if i>=0 then
     result:=Values[i]
 end;
@@ -1254,7 +1254,7 @@ end;
 procedure TOrderedKeyValueList<TK,TV>.SetValues( key: TK;  AValue: TV);
 var i:integer;
 begin
-  i:=TTools.BinSearch<TK>(Keys,key,Length(Keys));
+  i:=IndexOfKey(Key);
   if i<0 then
     begin
       i:=-(i+1);
@@ -1289,7 +1289,7 @@ end;
 function TOrderedKeyValueList<TK,TV>.IndexOfKey(const Key: TK): integer;
 begin
   if assigned(FindKey) then begin
-    result:=Findkey(Keys,key,Length(Keys));TTools.BinSearch<TK>(Keys,key,Length(Keys));
+    result:=Findkey(Keys,key,Length(Keys));
     exit
   end;
   for result:=0 to high(Keys) do
