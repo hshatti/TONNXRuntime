@@ -294,7 +294,6 @@ type
   TORTTensor<T> = record
   Type PT=^T;
   private
-  private
     FData:TArray<T>;
     FShape:TArray<int64_t>;
     FSize:Size_t;
@@ -322,7 +321,7 @@ type
     function ToString(const Separator:ortstring=', '):ortstring;
     {$endif}
     function ToValue:TORTValue;
-    class function FromValue(const val:TORTValue;const copyData:boolean=false):TORTTensor<T>;static;
+    class function FromValue(const val:TORTValue;const copyData:boolean=true):TORTTensor<T>;static;
     class operator Implicit(const aValue:TORTValue):TORTTensor<T>;
     class operator Implicit(const aValue:TORTTensor<T>):TORTValue;
   end;
@@ -1060,19 +1059,24 @@ var Info:TOrtTypeInfo ;
 begin
   // the data pointer is owned by the OrtValue and
  //  will be freed when the OrtValue is released
-  Info:=Val.GetTypeInfo();
-  if Info.GetONNXType<>ONNX_TYPE_TENSOR then
-    OrtException.CreateFmt('Value is not a Tensor %d',[Ord(Info.GetONNXType)]);
-  Meta:=Info.GetTensorTypeAndShapeInfo;
-  if OrtTensorType(TypeInfo(T))<>Meta.GetElementType then
-    OrtException.CreateFmt('Tensor must be of Type [%s]',[ORTTensorTypes[Meta.GetElementType]]);
-  ThrowOnError(GetApi().GetTensorMutableData(val.p_,@_data));
-  if copyData then begin
-    result:=TORTTensor<T>.Create(TTools.reverse<int64_t>(Val.GetTensorShape()));
-    move(_data^,result.Fdata[0],SizeOf(T)*result.FSize);
-  end else begin
-    result.Shape:=TTools.reverse<int64_t>(Val.GetTensorShape());
-    result.FData:=TArray<T>(_data)
+
+  try
+    Info:=Val.GetTypeInfo();
+    if Info.GetONNXType<>ONNX_TYPE_TENSOR then
+      OrtException.CreateFmt('Value is not a Tensor %d',[Ord(Info.GetONNXType)]);
+    Meta:=Info.GetTensorTypeAndShapeInfo;
+    if OrtTensorType(TypeInfo(T))<>Meta.GetElementType then
+      OrtException.CreateFmt('Tensor must be of Type [%s]',[ORTTensorTypes[Meta.GetElementType]]);
+    ThrowOnError(GetApi().GetTensorMutableData(val.p_,@_data));
+    if copyData then begin
+      result:=TORTTensor<T>.Create(TTools.reverse<int64_t>(Val.GetTensorShape()));
+      move(_data^,result.Fdata[0],SizeOf(T)*result.FSize);
+    end else begin
+      result.Shape:=TTools.reverse<int64_t>(Val.GetTensorShape());
+      result.FData:=TArray<T>(_data)
+    end;
+
+  except
   end;
 end;
 
@@ -1257,7 +1261,7 @@ begin
   i:=IndexOfKey(Key);
   if i<0 then
     begin
-      i:=-(i+1);
+      i:=not i;
       Insert(key, Keys,i);
       Insert(AValue,Values,i)
     end

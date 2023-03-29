@@ -383,6 +383,7 @@ var Ratio:single; bmp:TBitmap;
     inSize, OutSize:TSize;
     input,boxes,confidence:TOrtTensor<single>;
     labels:TOrtTensor<int64>;
+    outTensors:TArray<TORTValue>;
     mean:array of single =// [ 0,0,0];
                          [ 102.9801, 115.9465, 122.7717] ;
     pixelSpan:PBGRA; inputs,OutPuts:TORTNameValueList;
@@ -450,9 +451,10 @@ begin
   //  end;
 
   // the model will return boxes boxes at position 0;
-  boxes     := Outputs.Values[0];
-  labels    := Outputs.Values[1];
-  confidence:= Outputs.Values[2];
+  outTensors := Outputs.Values;
+  boxes     := outTensors[0];
+  labels    := outTensors[1];
+  confidence:= outTensors[2];
   writelog('Boxes : '+join(boxes.shape)+' '+boxes.ToString) ;
   writelog('Confidence : '+join(confidence.shape)+' '+confidence.ToString) ;
   bmp.BeginUpdate(true);
