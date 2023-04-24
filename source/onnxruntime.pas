@@ -1647,7 +1647,11 @@ end;
 procedure TORTBase<T>.NewRef;
 var RefCount:PLongInt;
 begin
+
  New(RefCount);
+ {$IFDEF DEBUG}
+ writeln('New @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @Count [', intToHex(UIntPtr(RefCount)),']');
+ {$ENDIF}
  RefCount^ := 0;
  HouseKeeper.AddOrSetValue(p_,RefCount);
  {$ifdef fpc}
@@ -1672,7 +1676,13 @@ procedure TORTBase<T>.DecRef;
 var RefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(p_,RefCount) then RefCount:=nil;
-  if assigned(RefCount) then
+  {$IFDEF DEBUG}
+  writeln('disposing @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @count [',IntToHex(UIntPtr(RefCount)),']') ;
+  {$ENDIF}
+  if assigned(RefCount) then begin
+    {$IFDEF DEBUG}
+    writeln('  ---> count [',RefCount^,']') ;
+    {$ENDIF}
     {$ifdef fpc}
     if InterLockedDecrement(RefCount^)=0 then
     {$else}
@@ -1682,8 +1692,9 @@ begin
       Dispose(RefCount);
       HouseKeeper.Remove(p_);
       OrtRelease;
+      {$IFDEF DEBUG}writeln('  ---> disposed') ;{$ENDIF}
     end;
-
+  end
 end;
 
 //function TORTBase<T>.RefCount: PLongInt;
@@ -1714,7 +1725,11 @@ begin
   if TypeInfo(T)=TypeInfo(OrtSequenceTypeInfo)          then begin Api.ReleaseSequenceTypeInfo(p_)      ;  exit  end;
   if TypeInfo(T)=TypeInfo(OrtMapTypeInfo)               then begin Api.ReleaseMapTypeInfo(p_)           ;  exit  end;
   if TypeInfo(T)=TypeInfo(OrtTypeInfo)                  then begin Api.ReleaseTypeInfo(p_)              ;  exit  end;
-  if TypeInfo(T)=TypeInfo(OrtValue)                     then begin Api.ReleaseValue(p_)                 ;  exit  end;
+  if TypeInfo(T)=TypeInfo(OrtValue)                     then
+  begin
+    Api.ReleaseValue(p_)
+        ;  exit
+  end;
   if TypeInfo(T)=TypeInfo(OrtModelMetadata)             then begin Api.ReleaseModelMetadata(p_)         ;  exit  end;
   if TypeInfo(T)=TypeInfo(OrtIoBinding)                 then begin Api.ReleaseIoBinding(p_)             ;  exit  end;
   if TypeInfo(T)=TypeInfo(OrtArenaCfg)                  then begin Api.ReleaseArenaCfg(p_)              ;  exit  end;
@@ -1776,14 +1791,19 @@ var dRefCount,sRefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(dst.p_,dRefCount) then dRefCount:=nil;
   if not HouseKeeper.TryGetValue(src.p_,sRefCount) then sRefCount:=nil;
+  {$IFDEF DEBUG}
+  writeln('Passing @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(sRefCount)),']');
+  writeln('To        @',IntToHex(UIntPtr(dst.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @dCount [',intToHex(UIntPtr(dRefCount)),']');
+  {$ENDIF}
   if assigned(dRefCount) then
     dst.DecRef();
-  if assigned(sRefCount) then
+  if assigned(sRefCount) then begin
     {$ifdef fpc}
     InterLockedIncrement(sRefCount^);
     {$else}
     TInterLocked.Increment(sRefCount^);
     {$endif}
+  end;
   if Assigned(dst.p_)then
     housekeeper.AddOrSetValue(dst.p_, sRefCount);
   dst.p_ := src.p_;
@@ -1794,8 +1814,15 @@ class operator TORTBase<T>.AddRef(var src: TORTBase<T>);
 var RefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(src.p_,RefCount) then RefCount:=nil;
-  if assigned(RefCount) then
+  {$IFDEF DEBUG}
+  writeln('Adding Ref @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(RefCount)),']');
+  {$ENDIF}
+  if assigned(RefCount) then begin
     InterLockedIncrement(RefCount^);
+    {$IFDEF DEBUG}
+    writeln('   Added --->  @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] sCount [', RefCount^,']');
+    {$ENDIF}
+  end
   //if TypeInfo(T)=TypeInfo(OrtEnv) then
   //  writeln('AddRef, OrtEnv, RefCount: ', HouseKeeper[src.p_]^);
 
@@ -2449,6 +2476,7 @@ begin
                   @OutputNames[0],@OutputValues[0],Length(OutputNames));
   {$ifndef NO_HASHMAP}result:=TNameValueList.Create;{$endif}
   for i:=0 to High(OutputNames) do begin
+    OutputValues[i].NewRef;  // make sure a reference is created to enforce freeing out of scope housekeeping
     result.AddOrSetValue(OutputNames[i],OutputValues[i]);
   end;
 
@@ -2460,8 +2488,8 @@ function TORTSessionHelper.Run(const run_options: TORTRunOptions;
 var i:size_t;
 begin
   setLength(result,output_names_count);
-  //for i := 0 to output_names_count-1 do
-  //  result[i]:=nil;
+  for i := 0 to output_names_count-1 do
+    result[i].NewRef;// create reference for housekeeping
   Run(run_options, input_names, input_values, input_count, output_names, @result[0], output_names_count);
 end;
 

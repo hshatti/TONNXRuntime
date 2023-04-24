@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 37
+  Left = 36
   Height = 901
-  Top = 506
+  Top = 505
   Width = 1279
   Caption = 'Make sure "FasterRCNN10.onnx" model file placed with the output executable'
   ClientHeight = 901
