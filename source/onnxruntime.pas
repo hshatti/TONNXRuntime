@@ -44,7 +44,10 @@
 *)
 
 unit onnxruntime;
-
+{.$define MEM_DEBUG}  // debug memory housekeeping mechanism
+{$ifdef MEM_DEBUG}
+{$APPTYPE CONSOLE}
+{$ENDIF}
 
 {$H+}
 {$ifdef fpc}
@@ -1649,7 +1652,7 @@ var RefCount:PLongInt;
 begin
 
  New(RefCount);
- {$IFDEF DEBUG}
+ {$IFDEF MEM_DEBUG}
  writeln('New @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @Count [', intToHex(UIntPtr(RefCount)),']');
  {$ENDIF}
  RefCount^ := 0;
@@ -1676,11 +1679,11 @@ procedure TORTBase<T>.DecRef;
 var RefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(p_,RefCount) then RefCount:=nil;
-  {$IFDEF DEBUG}
+  {$IFDEF MEM_DEBUG}
   writeln('disposing @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @count [',IntToHex(UIntPtr(RefCount)),']') ;
   {$ENDIF}
   if assigned(RefCount) then begin
-    {$IFDEF DEBUG}
+    {$IFDEF MEM_DEBUG}
     writeln('  ---> count [',RefCount^,']') ;
     {$ENDIF}
     {$ifdef fpc}
@@ -1692,7 +1695,7 @@ begin
       Dispose(RefCount);
       HouseKeeper.Remove(p_);
       OrtRelease;
-      {$IFDEF DEBUG}writeln('  ---> disposed') ;{$ENDIF}
+      {$IFDEF MEM_DEBUG}writeln('  ---> disposed') ;{$ENDIF}
     end;
   end
 end;
@@ -1791,7 +1794,7 @@ var dRefCount,sRefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(dst.p_,dRefCount) then dRefCount:=nil;
   if not HouseKeeper.TryGetValue(src.p_,sRefCount) then sRefCount:=nil;
-  {$IFDEF DEBUG}
+  {$IFDEF MEM_DEBUG}
   writeln('Passing @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(sRefCount)),']');
   writeln('To        @',IntToHex(UIntPtr(dst.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @dCount [',intToHex(UIntPtr(dRefCount)),']');
   {$ENDIF}
@@ -1814,12 +1817,12 @@ class operator TORTBase<T>.AddRef(var src: TORTBase<T>);
 var RefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(src.p_,RefCount) then RefCount:=nil;
-  {$IFDEF DEBUG}
+  {$IFDEF MEM_DEBUG}
   writeln('Adding Ref @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(RefCount)),']');
   {$ENDIF}
   if assigned(RefCount) then begin
     InterLockedIncrement(RefCount^);
-    {$IFDEF DEBUG}
+    {$IFDEF MEM_DEBUG}
     writeln('   Added --->  @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] sCount [', RefCount^,']');
     {$ENDIF}
   end
