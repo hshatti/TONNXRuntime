@@ -1,0 +1,75 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 479
+  ClientWidth = 772
+  Fill.Color = claBlack
+  Fill.Kind = Solid
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  DesignerMasterStyle = 0
+  object Image1: TImage
+    MultiResBitmap = <
+      item
+      end>
+    Align = Client
+    Size.Width = 772.000000000000000000
+    Size.Height = 479.000000000000000000
+    Size.PlatformDefault = False
+    OnPaint = Image1Paint
+    object StatusLabel: TLabel
+      Anchors = [akLeft, akRight, akBottom]
+      AutoSize = True
+      StyledSettings = [Family, Size]
+      Position.X = 4.000000000000000000
+      Position.Y = 5.000000000000000000
+      Size.Width = 580.000000000000000000
+      Size.Height = 16.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.FontColor = claGold
+      Text = 'StatusLabel'
+      TabOrder = 1
+    end
+    object RAMLabel: TLabel
+      Anchors = [akTop, akRight]
+      StyledSettings = [Family, Size]
+      Position.X = 664.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 100.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.FontColor = claGold
+      Text = 'RAMLabel'
+      TabOrder = 0
+    end
+  end
+  object Button1: TButton
+    Anchors = [akLeft, akBottom]
+    Position.X = 8.000000000000000000
+    Position.Y = 449.000000000000000000
+    Size.Width = 80.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 71
+    Text = 'Open Picture'
+    OnClick = Button1Click
+  end
+  object Button2: TButton
+    Anchors = [akLeft, akBottom]
+    Position.X = 96.000000000000000000
+    Position.Y = 449.000000000000000000
+    Size.Width = 80.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 70
+    Text = 'Start Inference'
+    OnClick = Button2Click
+  end
+end

@@ -174,7 +174,6 @@ type
   { TOrderedKeyValueList }
 
   TOrderedKeyValueList<TK,TV>=record
-
   type
     TKeyArray = TArray<TK>;
     TValueArray =TArray<TV>;
@@ -188,7 +187,6 @@ type
     procedure SetValues( key: TK; AValue: TV);
   public
     class function Create():TOrderedKeyValueList<TK,TV>; static;
-
     function ContainsKey(const key: TK): boolean;
     function IndexOfKey(const Key:TK):integer;
     function AddOrSetValue(const Key:TK;const AValue:TV):integer;
@@ -199,7 +197,11 @@ type
     procedure RemoveIndex(const index:integer);
     procedure Remove(const key:TK);
     class operator initialize({$ifdef fpc}outvar{$else}out{$endif} v:TOrderedKeyValueList<TK,TV>);
+    class operator Finalize(var dst:TOrderedKeyValueList<TK,TV>);
+
   end;
+  PMemHouseKeeper = ^TMemHouseKeeper;
+  TMemHouseKeeper = TOrderedKeyValueList<Pointer,PLongInt>;
 
   {$endif}
 
@@ -329,8 +331,15 @@ type
     class operator Implicit(const aValue:TORTTensor<T>):TORTValue;
   end;
 
+
+  {$ifdef MEM_TABLE}
+  THKHelp = record helper for TMemHouseKeeper
+    procedure print();
+  end;
+  {$endif}
+
   {$ifndef NO_HASHMAP}
-  TMemHousekeeper = TDictionary<Pointer,Plongint>;
+
   TORTNameValue<TKey,TValue> =  class(TDictionary<TKey,TValue>)
   private
     function GetKeys(idx: size_t): TKey;
@@ -343,7 +352,9 @@ type
   TORTProviderOptions= TDictionary<ortstring,ortstring>;
 
   {$else}
-  TMemHousekeeper = TOrderedKeyValueList<Pointer,Plongint>;
+//  TMemHousekeeper = TOrderedKeyValueList<Pointer,Plongint>;
+  {$ifdef MEM_TABLE}
+  {$endif}
   TORTNameValueList = TOrderedKeyValueList<ortstring,TORTValue>;
   TORTProviderOptions=TOrderedKeyValueList<ortstring,ortstring>;
   {$endif}
@@ -355,10 +366,10 @@ type
     class function Create(logging_level :OrtLoggingLevel ; const logid :POrtChar ; logging_function:OrtLoggingFunction ; logger_param: Pointer ):TORTEnv;                                                                          overload; static;
     class function Create(const tp_options :POrtThreadingOptions ; logging_level: OrtLoggingLevel = ORT_LOGGING_LEVEL_WARNING; const logid: POrtChar  = nil):TORTEnv;                                                               overload;static;
     class function Create(const tp_options :POrtThreadingOptions ; logging_function: OrtLoggingFunction ; logger_param:Pointer; logging_level :OrtLoggingLevel  = ORT_LOGGING_LEVEL_WARNING; const logid:POrtChar  = nil):TORTEnv;  overload;static;
-    function  EnableTelemetryEvents():PORTEnv;inline;   ///< Wraps OrtApi::EnableTelemetryEvents
-    function DisableTelemetryEvents():PORTEnv;inline;  ///< Wraps OrtApi::DisableTelemetryEvents
-    function CreateAndRegisterAllocator(const mem_info :POrtMemoryInfo; const arena_cfg:POrtArenaCfg):PORTEnv;inline;  ///< Wraps OrtApi::CreateAndRegisterAllocator
-    function UpdateLogLevel(const log_level:OrtLoggingLevel):PORTEnv;
+    function  EnableTelemetryEvents():TORTEnv;inline;   ///< Wraps OrtApi::EnableTelemetryEvents
+    function DisableTelemetryEvents():TORTEnv;inline;  ///< Wraps OrtApi::DisableTelemetryEvents
+    function CreateAndRegisterAllocator(const mem_info :TOrtMemoryInfo; const arena_cfg:TOrtArenaCfg):TORTEnv;inline;  ///< Wraps OrtApi::CreateAndRegisterAllocator
+    function UpdateLogLevel(const log_level:OrtLoggingLevel):TORTEnv;
   end;
 
 
@@ -448,16 +459,16 @@ type
   { TModelMetadataHelper }
 
   TORTModelMetadataHelper = record helper for TORTModelMetadata
-    function GetProducerNameAllocated(allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetProducerName
-    function GetGraphNameAllocated(allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetGraphName
-    function GetDomainAllocated(allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetDomain
-    function GetDescriptionAllocated(allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetDescription
-    function GetGraphDescriptionAllocated(allocator: POrtAllocator
+    function GetProducerNameAllocated(allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetProducerName
+    function GetGraphNameAllocated(allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetGraphName
+    function GetDomainAllocated(allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetDomain
+    function GetDescriptionAllocated(allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetDescription
+    function GetGraphDescriptionAllocated(allocator: TOrtAllocator
       ): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataGetGraphDescription
-    function GetCustomMetadataMapKeysAllocated(allocator: POrtAllocator): TArray<
+    function GetCustomMetadataMapKeysAllocated(allocator: TOrtAllocator): TArray<
       AllocatedStringPtr>;  ///< Wraps OrtApi::ModelMetadataGetCustomMetadataMapKeys
     function LookupCustomMetadataMapAllocated(const key: POrtChar;
-      allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataLookupCustomMetadataMap
+      allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::ModelMetadataLookupCustomMetadataMap
 
     function GetVersion():int64_t ;  ///< Wraps OrtApi::ModelMetadataGetVersion
 
@@ -511,7 +522,8 @@ type
      * \param[in] output_count Number of outputs (the size of the output_names array)
      * \return A std::vector of Value objects that directly maps to the output_count (eg. output_name[0] is the first entry of the returned vector)
      *)
-     function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList;  Allocator: POrtAllocator=nil): TORTNameValueList; overload;
+     function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList):TORTNameValueList; overload;
+     function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList;  Allocator: TOrtAllocator): TORTNameValueList; overload;
      function Run(const run_options:TORTRunOptions; const input_names :PPOrtChar ; const input_values:PORTValue;  input_count:size_t; const output_names:PPOrtChar ; output_names_count:size_t ):TArray<TORTValue>;                            overload;
      function Run(const Inputs:TORTNameValueList):TORTNameValueList; overload;
     (** \brief Run the model returning results in user provided outputs
@@ -533,7 +545,7 @@ type
      * \return a instance of smart pointer that would deallocate the buffer when out of scope.
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
-    function GetInputNameAllocated(index: size_t; allocator: POrtAllocator
+    function GetInputNameAllocated(index: size_t; allocator: TOrtAllocator
       ): AllocatedStringPtr;
 
     (** \brief Returns a copy of output name at then specified index.
@@ -543,7 +555,7 @@ type
      * \return a instance of smart pointer that would deallocate the buffer when out of scope.
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
-    function GetOutputNameAllocated(index: size_t; allocator: POrtAllocator
+    function GetOutputNameAllocated(index: size_t; allocator: TOrtAllocator
       ): AllocatedStringPtr;
 
     (** \brief Returns a copy of the overridable initializer name at then specified index.
@@ -554,7 +566,7 @@ type
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
     function GetOverridableInitializerNameAllocated(index: size_t;
-      allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::SessionGetOverridableInitializerName
+      allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::SessionGetOverridableInitializerName
 
     (** \brief Returns a copy of the profiling file name.
      *
@@ -562,7 +574,7 @@ type
      * \return a instance of smart pointer that would deallocate the buffer when out of scope.
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
-    function EndProfilingAllocated(allocator: POrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::SessionEndProfiling
+    function EndProfilingAllocated(allocator: TOrtAllocator): AllocatedStringPtr;  ///< Wraps OrtApi::SessionEndProfiling
     function GetProfilingStartTimeNs(): uint64_t;                                 ///< Wraps OrtApi::SessionGetProfilingStartTimeNs
     function GetModelMetadata() :TORTModelMetadata;                                   ///< Wraps OrtApi::SessionGetModelMetadata
     function GetInputTypeInfo(index:size_t) :TOrtTypeInfo;                   ///< Wraps OrtApi::SessionGetInputTypeInfo
@@ -690,6 +702,7 @@ type
     function GetAllocatorType() :OrtAllocatorType;
     function GetDeviceId(): longint;
     function GetMemoryType() :OrtMemType;
+    function GetDeviceType() :OrtMemoryInfoDeviceType;
     function Equal(const other:TORTMemoryInfo):boolean;
     //  equal == operator is implemented in TORTBase
   end;
@@ -723,8 +736,8 @@ type
     // The return value will own the allocation
     function GetAllocation(size:size_t):TORTMemoryAllocation;
     procedure Free(p:pointer);
-    function GetInfo():TORTMemoryInfo;    // result must have unowned content "implement a trick so it won't not be released if gone out of scope?"
-    function GetMemoryInfo():POrtMemoryInfo;
+    function GetMemoryInfo():TORTMemoryInfo;    // result must have unowned content "implement a trick so it won't not be released if gone out of scope?"
+    function GetInfo():POrtMemoryInfo;
   end;
 
 
@@ -745,7 +758,9 @@ type
     function GetAllocation(const size :size_t):TORTMemoryAllocation;
     procedure Free(const p:pointer);
     function GetInfo():POrtMemoryInfo;
-  private
+    function GetMemoryInfo():TORTMemoryInfo;
+    class operator Implicit(const v:TORTAllocatorWithDefaultOptions):TORTAllocator;
+  public
     p_:POrtAllocator;
   end;
 
@@ -794,7 +809,7 @@ type
     procedure SetDimensions(info :POrtTensorTypeAndShapeInfo; const dim_values:Pint64_t; dim_count:size_t);                             inline;
     function GetTensorMutableData<T>(value:POrtValue):Pointer;                                                                          inline;
     function GetTensorData<T>(const value:POrtValue):Pointer;                                                                           inline;
-    function GetTensorMemoryInfo(const value:POrtValue):POrtMemoryInfo;                                                                 inline;
+    function GetTensorMemoryInfo(const value:POrtValue):TOrtMemoryInfo;                                                                 inline;
     function GetTensorShape(const info: POrtTensorTypeAndShapeInfo):TArray<Int64_t>;                                                    inline;
     procedure ReleaseTensorTypeAndShapeInfo(input :POrtTensorTypeAndShapeInfo);                                                         inline;
     function KernelContext_GetInputCount(const context :POrtKernelContext):size_t;                                                      inline;
@@ -844,63 +859,36 @@ type
   TOrtTypeuint32_t   = record helper for uint32_t   const OrtTensortype = ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32  ; end;
   TOrtTypeuint64_t   = record helper for uint64_t   const OrtTensortype = ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64  ; end;
   TOrtTypeboolean    = record helper for boolean    const OrtTensortype = ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL    ; end;
-
-  function GetAvailableProviders():TArray<ortstring>;inline;
-  procedure ThrowOnError(const ort:POrtApi ; status: POrtStatus);inline; overload;
-  procedure ThrowOnError(status:POrtStatus);inline; overload;
-  function GetApi:POrtApi;
-
-  //procedure OrtRelease(ptr:POrtAllocator);             inline;overload;
-  //procedure OrtRelease(ptr:POrtMemoryInfo);            inline;overload;
-  //procedure OrtRelease(ptr:POrtCustomOpDomain);        inline;overload;
-  //procedure OrtRelease(ptr:POrtEnv);                   inline;overload;
-  //procedure OrtRelease(ptr:POrtRunOptions);            inline;overload;
-  //procedure OrtRelease(ptr:POrtSession);               inline;overload;
-  //procedure OrtRelease(ptr:POrtSessionOptions);        inline;overload;
-  //procedure OrtRelease(ptr:POrtTensorTypeAndShapeInfo);inline;overload;
-  //procedure OrtRelease(ptr:POrtSequenceTypeInfo);      inline;overload;
-  //procedure OrtRelease(ptr:POrtMapTypeInfo);           inline;overload;
-  //procedure OrtRelease(ptr:POrtTypeInfo);              inline;overload;
-  //procedure OrtRelease(ptr:POrtValue);                 inline;overload;
-  //procedure OrtRelease(ptr:POrtModelMetadata);         inline;overload;
-  //procedure OrtRelease(ptr:POrtThreadingOptions);      inline;overload;
-  //procedure OrtRelease(ptr:POrtIoBinding);             inline;overload;
-  //procedure OrtRelease(ptr:POrtArenaCfg);              inline;overload;
-
-
   var
     HouseKeeper: TMemHousekeeper;
-    DefaultAllocator      :POrtAllocator;
+
+    DefaultAllocator      :TORTAllocatorWithDefaultOptions;
     DefaultEnv            :TORTEnv;
     DefaultSessionOptions :TORTSessionOptions;
     DefaultRunOptions     :TORTRunOptions;
+
+    function GetAvailableProviders():TArray<ortstring>;inline;
+    procedure ThrowOnError(const ort:POrtApi ; status: POrtStatus);inline; overload;
+    procedure ThrowOnError(status:POrtStatus);inline; overload;
+    function GetApi:POrtApi;
     function AllocatorGetMemoryInfo(const Allocator:POrtAllocator):TORTMemoryInfo;
     function OrtTensorType(const typinf:PTypeInfo):ONNXTensorElementDataType;
     //function strcmp(_para1, _para2:POrtChar):longint;cdecl;external 'libc';
     procedure free(addr:pointer);cdecl;external 'libc';
     procedure cfree(addr:pointer);cdecl;external 'libc';
 implementation
-(*
-function ReferenceCount(const p:pointer):Plongint; inline;
-begin
-  result := HouseKeeper[p];
-end;
 
-function AddReference(const p:pointer):Plongint; inline;
-begin
-  result := HouseKeeper[p];
-  if result <> nil then
-    InterlockedIncrement(result^);
-end;
 
-function DecReference(const p:pointer):Plongint;
+{$ifdef MEM_TABLE}
+procedure THKHelp.print();
+var i:integer;
 begin
-  result := HouseKeeper[p];
-  if result <> nil then
-    InterLockedDecrement(result^)
+  for i:= 0 to High(keys) do
+    if assigned(values[i]) then
+      writeln(IntToStr(NativeUInt(keys[i])),' ==> ',IntToStr(values[i]^)) ;
+  writeln('')
 end;
-*)
-
+{$endif}
 function OrtTensorType(const typinf:PTypeInfo):ONNXTensorElementDataType;
 begin
    if typinf=TypeInfo(single     ) then begin result := ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT   ;exit end;
@@ -1051,7 +1039,7 @@ function TORTTensor<T>.ToValue: TORTValue;
 var revShape:TArray<int64_t>;
 begin
   revShape:=TTools.reverse<int64_t>(FShape);
-  result:=TORTValue.CreateTensor<T>(AllocatorGetMemoryInfo(DefaultAllocator).p_, FData[0],ElementCount,@revShape[0],DimensionCount);
+  result:=TORTValue.CreateTensor<T>(DefaultAllocator.GetInfo(), FData[0],ElementCount,@revShape[0],DimensionCount);
 end;
 
 class function TORTTensor<T>.FromValue(const val: TORTValue;
@@ -1232,6 +1220,11 @@ begin
   v.FindKey:=nil// change to TTools.BinSearch<TK> for fast sorted keys
 end;
 
+class operator TOrderedKeyValueList<TK,TV>.Finalize(var dst:TOrderedKeyValueList<TK,TV>);
+begin
+  {$ifdef MEM_TABLE}writeln('***** [',GetTypeName(TypeInfo(TOrderedKeyValueList<TK,TV>)) ,'] Deleted ******') {$endif}
+end;
+
 function TOrderedKeyValueList<TK,TV>.Count: integer;
 begin
   result:=Length(Keys)
@@ -1279,10 +1272,24 @@ begin
   // dummy constructor
 end;
 
+{$POINTERMATH ON}
+
+
 function TOrderedKeyValueList<TK, TV>.TryGetValue(const Key: TK; out Value: TV): boolean;
-var i:integer;
+var i,j:integer;
+  P,k:PPointer;
+
 begin
+  p:=PPointer(keys);
+  k:=@key;
   i:=IndexOfKey(Key);
+  {$ifdef MEM_TABLE}
+  write('locating.. ',NativeUInt(k^),' in ');
+  for j := 0 to High(keys) do
+    write(NativeUInt(p[j]),' , ');
+  writeln('');
+  writeln('found in ... ',i);
+  {$endif}
   result:= i>-1;
   if result then
     Value:=Values[i]
@@ -1334,6 +1341,7 @@ begin
   result:=i
     //end;
 end;
+
 {$endif}
 
 {$ifndef NO_SMARTPTR}
@@ -1662,6 +1670,7 @@ begin
  {$else}
  TInterLocked.Increment(RefCount^);
  {$endif}
+ {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== new =====',NativeUInt(p_));housekeeper.print;{$endif}
 end;
 
 procedure TORTBase<T>.Assign(const val: Pointer);
@@ -1682,9 +1691,10 @@ begin
   {$IFDEF MEM_DEBUG}
   writeln('disposing @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @count [',IntToHex(UIntPtr(RefCount)),']') ;
   {$ENDIF}
+  {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== Dec =====',NativeUInt(p_));{$endif}
   if assigned(RefCount) then begin
     {$IFDEF MEM_DEBUG}
-    writeln('  ---> count [',RefCount^,']') ;
+    writeln('  -----> Decrimenting count [',RefCount^,'] to [',RefCount^-1,']') ;
     {$ENDIF}
     {$ifdef fpc}
     if InterLockedDecrement(RefCount^)=0 then
@@ -1697,7 +1707,9 @@ begin
       OrtRelease;
       {$IFDEF MEM_DEBUG}writeln('  ---> disposed') ;{$ENDIF}
     end;
-  end
+    {$ifdef MEM_TABLE}housekeeper.print;writeln('');{$endif}
+  end ;
+  {$IFDEF MEM_DEBUG}Writeln('');  {$ENDIF}
 end;
 
 //function TORTBase<T>.RefCount: PLongInt;
@@ -1754,12 +1766,12 @@ begin
   if GetApi=nil then exit;
   if TypeInfo(T)=TypeInfo(OrtSessionOptions) then begin
       ThrowOnError(GetApi().CreateSessionOptions(@v.p_));
-//      v.NewRef;
+      //v.NewRef;
       exit
   end;
   if TypeInfo(T)=TypeInfo(OrtRunOptions) then begin
       ThrowOnError(GetApi().CreateRunOptions(@v.p_));
-//      v.NewRef;
+      //v.NewRef;
       exit
   end;
 end;
@@ -1794,22 +1806,30 @@ var dRefCount,sRefCount:PLongInt;
 begin
   if not HouseKeeper.TryGetValue(dst.p_,dRefCount) then dRefCount:=nil;
   if not HouseKeeper.TryGetValue(src.p_,sRefCount) then sRefCount:=nil;
+  if assigned(dRefCount) then
+    dst.DecRef();
   {$IFDEF MEM_DEBUG}
   writeln('Passing @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(sRefCount)),']');
   writeln('To        @',IntToHex(UIntPtr(dst.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @dCount [',intToHex(UIntPtr(dRefCount)),']');
   {$ENDIF}
-  if assigned(dRefCount) then
-    dst.DecRef();
+  {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== asn =====',NativeUInt(src.p_),' , ',NativeUInt(dst.p_));{$endif}
   if assigned(sRefCount) then begin
+    {$IFDEF MEM_DEBUG}
+    writeLn('  -----> incrementing sCount[',sRefCount^,'] to [',sRefCount^+1,']');
+    {$ENDIF}
     {$ifdef fpc}
     InterLockedIncrement(sRefCount^);
     {$else}
     TInterLocked.Increment(sRefCount^);
     {$endif}
+//    {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== asn =====');housekeeper.print;{$endif}
   end;
-  if Assigned(dst.p_)then
+  if Assigned(dst.p_)then begin
     housekeeper.AddOrSetValue(dst.p_, sRefCount);
+    {$ifdef MEM_TABLE}housekeeper.print;{$endif}
+  end;
   dst.p_ := src.p_;
+  {$IFDEF MEM_DEBUG}Writeln('');  {$ENDIF}
  end;
 
 {$ifdef fpc}
@@ -1820,15 +1840,18 @@ begin
   {$IFDEF MEM_DEBUG}
   writeln('Adding Ref @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @sCount [', intToHex(UIntPtr(RefCount)),']');
   {$ENDIF}
+  {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== new =====');{$endif}
   if assigned(RefCount) then begin
+    {$IFDEF MEM_DEBUG}Writeln('   -----> Incrementing count [',RefCount^,'] to [',RefCount^+1,']');  {$ENDIF}
     InterLockedIncrement(RefCount^);
     {$IFDEF MEM_DEBUG}
     writeln('   Added --->  @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] sCount [', RefCount^,']');
     {$ENDIF}
+    {$ifdef MEM_TABLE}housekeeper.print;{$endif}
   end
   //if TypeInfo(T)=TypeInfo(OrtEnv) then
   //  writeln('AddRef, OrtEnv, RefCount: ', HouseKeeper[src.p_]^);
-
+  {$IFDEF MEM_DEBUG}Writeln('');  {$ENDIF}
 end;
 {$endif}
 //class operator TORTBase<T>.Implicit(const v: TORTBase<T>): PT;
@@ -1865,7 +1888,7 @@ end;
 class function TORTIoBindingHelper.IoBinding(var session: TORTSession):TORTIoBinding;
 begin
   ThrowOnError(GetApi().CreateIoBinding(session.p_, @result.p_));
-  //NewRef;
+  result.NewRef;
 end;
 
 procedure TORTIoBindingHelper.BindInput(const name: POrtChar; const value: TORTValue);
@@ -1985,7 +2008,7 @@ class function TORTArenaCfgHelper.ArenaCfg(max_mem: size_t;
   max_dead_bytes_per_chunk: longint):TORTArenaCfg;
 begin
   ThrowOnError(GetApi().CreateArenaCfg(max_mem, arena_extend_strategy, initial_chunk_size_bytes, max_dead_bytes_per_chunk, @result.p_));
-  //NewRef;
+  result.NewRef;
 end;
 
 { TORTAllocatorHelper }
@@ -1993,7 +2016,7 @@ end;
 class function TORTAllocatorHelper.Create(const session: TORTSession; const mem_info: TORTMemoryInfo):TORTAllocator;
 begin
   ThrowOnError(GetApi().CreateAllocator(session.p_, mem_info.p_, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 function TORTAllocatorHelper.Alloc(const size: size_t): pointer;
@@ -2013,14 +2036,14 @@ begin
   ThrowOnError(GetApi().AllocatorFree(p_, p));
 end;
 
-function TORTAllocatorHelper.GetInfo: TORTMemoryInfo;
+function TORTAllocatorHelper.GetMemoryInfo: TORTMemoryInfo;
 //var _out:POrtMemoryInfo;
 begin
   ThrowOnError(GetApi().AllocatorGetInfo(p_, @result));
   //result:= _out;
 end;
 
-function TORTAllocatorHelper.GetMemoryInfo: POrtMemoryInfo;
+function TORTAllocatorHelper.GetInfo: POrtMemoryInfo;
 begin
   ThrowOnError(GetApi().AllocatorGetInfo(p_,@result))
 end;
@@ -2031,14 +2054,12 @@ class function TORTMemoryInfoHelper.CreateCpu(_type: OrtAllocatorType;
   mem_type: OrtMemType):TORTMemoryInfo;
 begin
   ThrowOnError(GetApi().CreateCpuMemoryInfo(_type, mem_type, @result.p_));
-  //NewRef();
 end;
 
 class function TORTMemoryInfoHelper.Create(const name: POrtChar;
   _type: OrtAllocatorType; id: longint; mem_type: OrtMemType):TORTMemoryInfo;
 begin
   ThrowOnError(GetApi().CreateMemoryInfo(name, _type, id, mem_type, @result.p_));
-  //NewRef();
 end;
 
 function TORTMemoryInfoHelper.GetAllocatorName: ortstring;
@@ -2063,6 +2084,11 @@ begin
   ThrowOnError(GetApi().MemoryInfoGetMemType(p_, @result));
 end;
 
+function TORTMemoryInfoHelper.GetDeviceType():OrtMemoryInfoDeviceType;
+begin
+  GetApi().MemoryInfoGetDeviceType(p_, @result);
+end;
+
 function TORTMemoryInfoHelper.Equal(const other: TORTMemoryInfo): boolean;
 var comp_result:longint;
 begin
@@ -2077,14 +2103,14 @@ class function TORTValueHelper.CreateTensor(const info: POrtMemoryInfo;
   shape_len: size_t; _type: ONNXTensorElementDataType):TORTValue;
 begin
   ThrowOnError(GetApi().CreateTensorWithDataAsOrtValue(info, p_data, p_data_byte_count, shape, shape_len, _type, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 class function TORTValueHelper.CreateTensor(allocator: POrtAllocator;
   const shape: Pint64_t; shape_len: size_t; _type: ONNXTensorElementDataType):TORTValue;
 begin
   ThrowOnError(GetApi().CreateTensorAsOrtValue(allocator, shape, shape_len, _type, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 class function TORTValueHelper.CreateMap(var keys: TORTValue; var values: TORTValue):TORTValue;
@@ -2092,13 +2118,13 @@ var inputs:array [0..1] of POrtValue;
 begin
   inputs[0]:=keys.p_;inputs[1]:=values.p_;
   ThrowOnError(GetApi().CreateValue(@inputs[0], 2, ONNX_TYPE_MAP, @result.p_));
-  //NewRef;
+  result.NewRef;
 end;
 
 class function TORTValueHelper.CreateSequence(var values: TArray<TORTValue>):TORTValue;
 begin
   ThrowOnError(GetApi().CreateValue(@values[0], length(values), ONNX_TYPE_SEQUENCE, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 function TORTValueHelper.IsTensor: boolean;
@@ -2120,7 +2146,8 @@ end;
 // for non tensor types  Only ( index is 0 or 1 in case of a map , 0 to N in case of sequence)
 function TORTValueHelper.GetValue(index: longint; allocator: POrtAllocator): TORTValue;
 begin
-  ThrowOnError(GetApi().GetValue(p_, index, allocator, @result))
+  ThrowOnError(GetApi().GetValue(p_, index, allocator, @result.p_));
+  result.NewRef;
 end;
 
 function TORTValueHelper.GetStringTensorDataLength: size_t;
@@ -2136,12 +2163,12 @@ end;
 
 function TORTValueHelper.GetTypeInfo: TOrtTypeInfo;
 begin
-  ThrowOnError(GetApi().GetTypeInfo(p_, @result));
+  ThrowOnError(GetApi().GetTypeInfo(p_, @result.p_));
 end;
 
 function TORTValueHelper.GetTensorTypeAndShapeInfo: TORTTensorTypeAndShapeInfo;
 begin
-  ThrowOnError(GetApi().GetTensorTypeAndShape(p_, @result));
+  ThrowOnError(GetApi().GetTensorTypeAndShape(p_, @result.p_));
 end;
 
 function TORTValueHelper.GetStringTensorElementLength(element_index: size_t): size_t;
@@ -2171,7 +2198,7 @@ class function TORTValueHelper.CreateSparseTensor(const info: POrtMemoryInfo;
 begin
   ThrowOnError(GetApi().CreateSparseTensorWithValuesAsOrtValue(info, p_data, dense_shape.shape, dense_shape.shape_len,
                                                                values_shape.shape, values_shape.shape_len, _type, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 procedure TORTValueHelper.UseCooIndices(indices_data: Pint64_t; indices_num: size_t);
@@ -2195,7 +2222,7 @@ class function TORTValueHelper.CreateSparseTensor(allocator: POrtAllocator;
   const dense_shape: TShape; _type: ONNXTensorElementDataType):TORTValue;
 begin
   ThrowOnError(GetApi().CreateSparseTensorAsOrtValue(allocator, dense_shape.shape, dense_shape.shape_len, _type, result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 procedure TORTValueHelper.FillSparseTensorCoo(const data_mem_info: POrtMemoryInfo;
@@ -2286,6 +2313,7 @@ class function TORTValueHelper.CreateOpaque<T>(const domain: POrtChar;
   const type_name: POrtChar; const data_container: T): TORTValue;
 begin
   ThrowOnError(GetApi().CreateOpaqueValue(domain, type_name, @data_container, sizeof(T), @result));
+  result.NewRef
 end;
 
 procedure TORTValueHelper.GetOpaqueData<T>(const domain: POrtChar;
@@ -2415,6 +2443,7 @@ class function TORTSessionHelper.Create(const env: TORTEnv;
   const model_path: PORTCHAR_T; const options: TORTSessionOptions):TORTSession;
 begin
   ThrowOnError(GetApi().CreateSession(env.p_, model_path, options.p_, @result.p_));
+  result.NewRef;
 end;
 
 class function TORTSessionHelper.Create(const env: TORTEnv;
@@ -2422,12 +2451,14 @@ class function TORTSessionHelper.Create(const env: TORTEnv;
   prepacked_weights_container: POrtPrepackedWeightsContainer):TORTSession;
 begin
   ThrowOnError(GetApi().CreateSessionWithPrepackedWeightsContainer(env.p_, model_path, options.p_, prepacked_weights_container, @result.p_));
+  result.NewRef;
 end;
 
 class function TORTSessionHelper.Create(const env: TORTEnv; const model_data: Pointer;
   model_data_length: size_t; const options: TORTSessionOptions):TORTSession;
 begin
   ThrowOnError(GetApi().CreateSessionFromArray(env.p_, model_data, model_data_length, options.p_, @result.p_));
+  result.NewRef;
 end;
 
 class function TORTSessionHelper.Create(const env: TORTEnv; const model_data: Pointer;
@@ -2436,6 +2467,7 @@ class function TORTSessionHelper.Create(const env: TORTEnv; const model_data: Po
 begin
   ThrowOnError(GetApi().CreateSessionFromArrayWithPrepackedWeightsContainer(env.p_, model_data, model_data_length, options.p_,
                                                                             prepacked_weights_container, @result.p_));
+  result.NewRef;
 end;
 
 class function TORTSessionHelper.Create(const model_path: TFileName):TORTSession;
@@ -2443,6 +2475,7 @@ var _path:widestring;
 begin
   _path:=model_path;
   ThrowOnError(GetApi().CreateSession(DefaultEnv.p_, PORTCHAR_T(_path), DefaultSessionOptions.p_, @result.p_));
+  result.NewRef;
 end;
 
 function Join(const arr:array of int64_t; const Delimiter:ortstring=', '):ortstring;  overload;
@@ -2455,7 +2488,12 @@ begin
     delete(result,1,length(Delimiter))
 end;
 
-function TORTSessionHelper.run(const run_options: TORTRunOptions; const Inputs: TORTNameValueList; Allocator: POrtAllocator): TORTNameValueList;
+function TORTSessionHelper.run(const run_options: TORTRunOptions; const Inputs: TORTNameValueList): TORTNameValueList;
+begin
+  Run(run_options,Inputs,DefaultAllocator)
+end;
+
+function TORTSessionHelper.run(const run_options: TORTRunOptions; const Inputs: TORTNameValueList; Allocator: TOrtAllocator): TORTNameValueList;
 var
   InputNames:TArray<ortstring>;
   InputValues:TArray<TORTValue>;
@@ -2467,7 +2505,6 @@ begin
   setLength(InputValues,length(InputNames));
   setLength(OutputNames,GetOutputCount());
   setLength(OutputValues,length(OutputNames));
-  if Allocator=nil then Allocator:=DefaultAllocator;
   for i:=0 to high(InputNames) do begin
     InputNames[i]:=ortstring(GetInputNameAllocated(i,Allocator){$ifndef NO_SMARTPTR}.Instance{$endif});
     InputValues[i]:=Inputs[ortstring(InputNames[i])];
@@ -2491,9 +2528,11 @@ function TORTSessionHelper.Run(const run_options: TORTRunOptions;
 var i:size_t;
 begin
   setLength(result,output_names_count);
+  Run(run_options, input_names, input_values, input_count,
+                  output_names, @result[0], output_names_count);
   for i := 0 to output_names_count-1 do
     result[i].NewRef;// create reference for housekeeping
-  Run(run_options, input_names, input_values, input_count, output_names, @result[0], output_names_count);
+
 end;
 
 function TORTSessionHelper.Run(const Inputs: TORTNameValueList): TORTNameValueList;
@@ -2535,41 +2574,41 @@ begin
 end;
 
 function TORTSessionHelper.GetInputNameAllocated(index: size_t;
-  allocator: POrtAllocator): AllocatedStringPtr;
+  allocator: TOrtAllocator): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().SessionGetInputName(p_, index, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().SessionGetInputName(p_, index, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(allocator,_out);{$endif}
 end;
 
 function TORTSessionHelper.GetOutputNameAllocated(index: size_t;
-  allocator: POrtAllocator): AllocatedStringPtr;
+  allocator: TOrtAllocator): AllocatedStringPtr;
 var  _out:POrtChar;
 begin
-  ThrowOnError(GetApi().SessionGetOutputName(p_, index, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().SessionGetOutputName(p_, index, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(allocator,_out);{$endif}
 end;
 
 function TORTSessionHelper.GetOverridableInitializerNameAllocated(index: size_t;
-  allocator: POrtAllocator): AllocatedStringPtr;
+  allocator: TOrtAllocator): AllocatedStringPtr;
 var  _out:POrtChar;
 begin
-  ThrowOnError(GetApi().SessionGetOverridableInitializerName(p_, index, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().SessionGetOverridableInitializerName(p_, index, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(allocator,_out);{$endif}
 end;
 
-function TORTSessionHelper.EndProfilingAllocated(allocator: POrtAllocator
+function TORTSessionHelper.EndProfilingAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var  _out:POrtChar;
 begin
-  ThrowOnError(GetApi().SessionEndProfiling(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().SessionEndProfiling(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(allocator,_out);{$endif}
 end;
@@ -2581,81 +2620,82 @@ end;
 
 function TORTSessionHelper.GetModelMetadata: TORTModelMetadata;
 begin
-  ThrowOnError(GetApi().SessionGetModelMetadata(p_, @result));
+  ThrowOnError(GetApi().SessionGetModelMetadata(p_, @result.p_));
+  result.NewRef;
 end;
 
 function TORTSessionHelper.GetInputTypeInfo(index: size_t): TOrtTypeInfo;
 begin
-  ThrowOnError(GetApi().SessionGetInputTypeInfo(p_, index, @result))
+  ThrowOnError(GetApi().SessionGetInputTypeInfo(p_, index, @result.p_)) ;
 end;
 
 function TORTSessionHelper.GetOutputTypeInfo(index: size_t): TOrtTypeInfo;
 begin
-  ThrowOnError(GetApi().SessionGetOutputTypeInfo(p_, index, @result));
+  ThrowOnError(GetApi().SessionGetOutputTypeInfo(p_, index, @result.p_));
 end;
 
 function TORTSessionHelper.GetOverridableInitializerTypeInfo(index: size_t ): TOrtTypeInfo;
 begin
-  ThrowOnError(GetApi().SessionGetOverridableInitializerTypeInfo(p_, index, @result));
+  ThrowOnError(GetApi().SessionGetOverridableInitializerTypeInfo(p_, index, @result.p_));
 end;
 
 { TORTModelMetadataHelper }
 
-function TORTModelMetadataHelper.GetProducerNameAllocated(allocator: POrtAllocator
+function TORTModelMetadataHelper.GetProducerNameAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetProducerName(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataGetProducerName(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
 
-function TORTModelMetadataHelper.GetGraphNameAllocated(allocator: POrtAllocator
+function TORTModelMetadataHelper.GetGraphNameAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetGraphName(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataGetGraphName(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
 
-function TORTModelMetadataHelper.GetDomainAllocated(allocator: POrtAllocator
+function TORTModelMetadataHelper.GetDomainAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetDomain(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataGetDomain(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
 
-function TORTModelMetadataHelper.GetDescriptionAllocated(allocator: POrtAllocator
+function TORTModelMetadataHelper.GetDescriptionAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetDescription(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataGetDescription(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
 
-function TORTModelMetadataHelper.GetGraphDescriptionAllocated(allocator: POrtAllocator
+function TORTModelMetadataHelper.GetGraphDescriptionAllocated(allocator: TOrtAllocator
   ): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetGraphDescription(p_, allocator, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataGetGraphDescription(p_, allocator.p_, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
 
 function TORTModelMetadataHelper.GetCustomMetadataMapKeysAllocated(
-  allocator: POrtAllocator): TArray<AllocatedStringPtr>;
+  allocator: TOrtAllocator): TArray<AllocatedStringPtr>;
 var _out:PPOrtChar; num_keys,i:int64_t;
 begin
-  ThrowOnError(GetApi().ModelMetadataGetCustomMetadataMapKeys(p_, allocator, @_out, @num_keys));
+  ThrowOnError(GetApi().ModelMetadataGetCustomMetadataMapKeys(p_, allocator.p_, @_out, @num_keys));
   if num_keys <= 0 then
     exit;
 
@@ -2663,7 +2703,7 @@ begin
   // array of pointers will be freed
   // reserve may throw
   for i := 0 to num_keys-1 do begin
-      {$ifndef NO_SMARTPTR}result[i].DisposerFunc:=TORTAllocatedFree.Create(allocator);{$endif}
+      {$ifndef NO_SMARTPTR}result[i].DisposerFunc:=TORTAllocatedFree.Create(allocator.p_);{$endif}
       result[i]:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out^);{$else}ortstring(_out^) {$endif} ;
       inc(_out)
   end;
@@ -2674,11 +2714,11 @@ begin
 end;
 
 function TORTModelMetadataHelper.LookupCustomMetadataMapAllocated(
-  const key: POrtChar; allocator: POrtAllocator): AllocatedStringPtr;
+  const key: POrtChar; allocator: TOrtAllocator): AllocatedStringPtr;
 var _out:POrtChar;
 begin
-  ThrowOnError(GetApi().ModelMetadataLookupCustomMetadataMap(p_, allocator, key, @_out));
-  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator);{$endif}
+  ThrowOnError(GetApi().ModelMetadataLookupCustomMetadataMap(p_, allocator.p_, key, @_out));
+  {$ifndef NO_SMARTPTR}result.DisposerFunc:=TORTAllocatedFree.create(allocator.p_);{$endif}
   result:={$ifndef NO_SMARTPTR}AllocatedStringPtr.PT(_out);{$else}ortstring(_out) {$endif}
   {$ifdef NO_SMARTPTR}allocator.Free(Allocator,_out);{$endif}
 end;
@@ -2990,7 +3030,7 @@ end;
 class function TORTCustomOpDomainHelper.Create(const domain: POrtChar):TORTCustomOpDomain;
 begin
   ThrowOnError(GetApi().CreateCustomOpDomain(domain, @result.p_));
-  //NewRef();
+  result.NewRef();
 end;
 
 procedure TORTCustomOpDomainHelper.Add(op: POrtCustomOp);
@@ -3144,7 +3184,7 @@ begin
   result:= GetTensorMutableData<T>(value);
 end;
 
-function TORTCustomOpApi.GetTensorMemoryInfo(const value: POrtValue): POrtMemoryInfo;
+function TORTCustomOpApi.GetTensorMemoryInfo(const value: POrtValue): TOrtMemoryInfo;
 begin
   ThrowOnError(api_.GetTensorMemoryInfo(value, @result))
 end;
@@ -3273,6 +3313,16 @@ begin
   ThrowOnError(GetApi().AllocatorGetInfo(p_, @result));
 end;
 
+function TORTAllocatorWithDefaultOptions.GetMemoryInfo : TORTMemoryInfo;
+begin
+  ThrowOnError(GetApi().AllocatorGetInfo(p_, @result.p_));
+end;
+
+class operator TORTAllocatorWithDefaultOptions.Implicit(const v:TORTAllocatorWithDefaultOptions):TORTAllocator;
+begin
+  result.p_:=v.p_
+end;
+
 { TORTMemoryAllocation }
 
 constructor TORTMemoryAllocation.Create(const allocator: POrtAllocator; const p: Pointer; const size: size_t);
@@ -3307,6 +3357,7 @@ class function TORTEnvHelper.Create(logging_level: OrtLoggingLevel; const logid:
 begin
   ThrowOnError(GetApi().CreateEnv(logging_level, logid, @result.p_));
   ThrowOnError(GetApi().SetLanguageProjection(@result.p_, DefaultLanguageProjection));
+  //result.NewRef
 end;
 
 class function TORTEnvHelper.Create(logging_level: OrtLoggingLevel;
@@ -3315,6 +3366,7 @@ class function TORTEnvHelper.Create(logging_level: OrtLoggingLevel;
 begin
   ThrowOnError(GetApi().CreateEnvWithCustomLogger(logging_function, logger_param, logging_level, logid, @result.p_));
   ThrowOnError(GetApi().SetLanguageProjection(@result.p_, DefaultLanguageProjection));
+  result.NewRef
 end;
 
 class function TORTEnvHelper.Create(const tp_options: POrtThreadingOptions;
@@ -3322,6 +3374,7 @@ class function TORTEnvHelper.Create(const tp_options: POrtThreadingOptions;
 begin
   ThrowOnError(GetApi().CreateEnvWithGlobalThreadPools(logging_level, logid, tp_options, @result.p_));
   ThrowOnError(GetApi().SetLanguageProjection(@result.p_, DefaultLanguageProjection));
+  result.NewRef
 end;
 
 class function TORTEnvHelper.Create(const tp_options: POrtThreadingOptions;
@@ -3330,31 +3383,32 @@ class function TORTEnvHelper.Create(const tp_options: POrtThreadingOptions;
 begin
   ThrowOnError(GetApi().CreateEnvWithCustomLoggerAndGlobalThreadPools(logging_function, logger_param, logging_level, logid, tp_options, @result.p_));
   ThrowOnError(GetApi().SetLanguageProjection(@result.p_, DefaultLanguageProjection));
+  result.NewRef
 end;
 
-function TORTEnvHelper.EnableTelemetryEvents: PORTEnv;
+function TORTEnvHelper.EnableTelemetryEvents: TORTEnv;
 begin
   ThrowOnError(GetApi().EnableTelemetryEvents(p_));
-  result:=@Self;
+  result:=Self.p_;
 end;
 
-function TORTEnvHelper.DisableTelemetryEvents: PORTEnv;
+function TORTEnvHelper.DisableTelemetryEvents:TORTEnv;
 begin
   ThrowOnError(GetApi().DisableTelemetryEvents(p_));
-  result:=@Self
+  result:=Self.p_
 end;
 
-function TORTEnvHelper.CreateAndRegisterAllocator(const mem_info: POrtMemoryInfo;
-  const arena_cfg: POrtArenaCfg): PORTEnv;
+function TORTEnvHelper.CreateAndRegisterAllocator(const mem_info: TOrtMemoryInfo;
+  const arena_cfg: TOrtArenaCfg): TORTEnv;
 begin
-  ThrowOnError(GetApi().CreateAndRegisterAllocator(p_, mem_info, arena_cfg));
-  result:=@Self
+  ThrowOnError(GetApi().CreateAndRegisterAllocator(p_, mem_info.p_, arena_cfg.p_));
+  result:=Self.p_
 end;
 
-function TORTEnvHelper.UpdateLogLevel(const log_level: OrtLoggingLevel): PORTEnv;
+function TORTEnvHelper.UpdateLogLevel(const log_level: OrtLoggingLevel): TORTEnv;
 begin
   ThrowOnError(GetApi().UpdateEnvWithCustomLogLevel(p_, log_level));
-  result:=@Self;
+  result:=Self.p_;
 end;
 
 
@@ -3407,12 +3461,7 @@ end;
 
 
 initialization
-  {$ifndef NO_HASHMAP}
-  HouseKeeper:=TMemHousekeeper.Create;
-  {$endif}
 
-
-  ThrowOnError(Api.GetAllocatorWithDefaultOptions(@DefaultAllocator));
 
   DefaultEnv:=TORTEnv.Create(ORT_LOGGING_LEVEL_WARNING, POrtChar(DEFAULT_LOGID) );
 
@@ -3425,5 +3474,9 @@ initialization
   //  ThrowOnError(Api.CreateRunOptions(@DefaultRunOptions.p_));
   //  DefaultRunOptions.NewRef();
   //end
+finalization
+  if Assigned(@HouseKeeper) then
+    if IsConsole then writeLn('clear');
+
 
 end.

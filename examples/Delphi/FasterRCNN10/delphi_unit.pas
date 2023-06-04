@@ -4,9 +4,9 @@ interface
 
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, Generics.Collections, onnxruntime, onnxruntime_pas_api,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, Generics.Collections,
   FMX.StdCtrls, FMX.ListBox, FMX.Controls.Presentation, FMX.Memo.Types, math,
-  FMX.ScrollBox, FMX.Memo, FMX.Objects;
+  FMX.ScrollBox, FMX.Memo, FMX.Objects,onnxruntime_pas_api,onnxruntime;
 
   type
   TScaleType =(stNearest, stLinear);
@@ -435,7 +435,7 @@ begin
   //WriteLog('Version : '+FloatToStr(Version));
   WriteLog(format(' Inputs => Outputs : [%s] => [%s]',[Join(InputNames), Join(OutputNames)]));
   WriteLog('------------------- End ----------------');
-  MemInfo:=AllocatorGetMemoryInfo(DefaultAllocator);
+  MemInfo:=DefaultAllocator.GetMemoryInfo();
   s:=MemInfo.GetAllocatorName();
   WriteLog('Memtype :'      +IntToStr(Ord(MemInfo.GetMemoryType())   ));
   WriteLog('AllocatorType :'+IntToStr(Ord(MemInfo.GetAllocatorType())));

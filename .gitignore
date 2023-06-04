@@ -60,6 +60,9 @@
 *.tvsconfig
 *.dsk
 
+# large onnx models
+yolo*.onnx
+
 # Delphi history and backups
 __history/
 __recovery/
