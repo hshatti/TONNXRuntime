@@ -86,12 +86,22 @@ begin
 ###### More examples Coming soon..
    
 
-#### More information about ONNXRuntime API
+### Examples
 
-* Check the [Faster RCNN10 example](/examples) folder
+* [CPU : Faster RCNN10 example](/examples) folder
 
   Download `FasterRCNN-10.onnx` from [here](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/faster-rcnn/model)
+
+
+* [GPU : Yolo V7 (DirectML)](/examples) folder
+
+  Download `nms_yolov7_25200.onnx` from [here](https://github.com/PINTO0309/PINTO_model_zoo/tree/main/307_YOLOv7/post_process_gen_tools)
+
+#### More information about ONNXRuntime API
+
 * Check [ONNXRuntime API Documents](https://onnxruntime.ai/docs/api/)
+
+
   
 ---  
 #### Contributions and suggestions are most welcome.
