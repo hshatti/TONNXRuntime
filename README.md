@@ -95,7 +95,7 @@ begin
 
 * [GPU : Yolo V7 (DirectML)](/examples) folder
 
-  Download `nms_yolov7_25200.onnx` from [here](https://github.com/PINTO0309/PINTO_model_zoo/tree/main/307_YOLOv7/post_process_gen_tools)
+  Download and extract `yolov7_640x640.onnx` from [here](https://github.com/PINTO0309/PINTO_model_zoo/tree/main/307_YOLOv7/post_process_gen_tools)
 
 #### More information about ONNXRuntime API
 

@@ -1766,12 +1766,12 @@ begin
   if GetApi=nil then exit;
   if TypeInfo(T)=TypeInfo(OrtSessionOptions) then begin
       ThrowOnError(GetApi().CreateSessionOptions(@v.p_));
-      //v.NewRef;
+      if Assigned(DefaultSessionOptions.p_) then v.NewRef;
       exit
   end;
   if TypeInfo(T)=TypeInfo(OrtRunOptions) then begin
       ThrowOnError(GetApi().CreateRunOptions(@v.p_));
-      //v.NewRef;
+      if Assigned(DefaultRunOptions.p_) then v.NewRef;
       exit
   end;
 end;
@@ -3357,7 +3357,7 @@ class function TORTEnvHelper.Create(logging_level: OrtLoggingLevel; const logid:
 begin
   ThrowOnError(GetApi().CreateEnv(logging_level, logid, @result.p_));
   ThrowOnError(GetApi().SetLanguageProjection(@result.p_, DefaultLanguageProjection));
-  //result.NewRef
+  if Assigned(DefaultEnv.p_) then result.NewRef
 end;
 
 class function TORTEnvHelper.Create(logging_level: OrtLoggingLevel;
@@ -3475,6 +3475,7 @@ initialization
   //  DefaultRunOptions.NewRef();
   //end
 finalization
+
   if Assigned(@HouseKeeper) then
     if IsConsole then writeLn('clear');
 

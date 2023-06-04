@@ -8,6 +8,6 @@
 
 ### Yolo V7 GPU (DirectML)
 
-* Download `nms_yolov7_25200.onnx` from [here](https://github.com/PINTO0309/PINTO_model_zoo/tree/main/307_YOLOv7/post_process_gen_tools)
-* Place the `nms_yolov7_25200.onnx` next to the output executable
+* Download and extract `yolov7_640x640.onnx` from [here](https://s3.ap-northeast-2.wasabisys.com/pinto-model-zoo/307_YOLOv7/no-postprocess/resources.tar.gz)
+* Place the `yolov7_640x640.onnx` next to the output executable
 
