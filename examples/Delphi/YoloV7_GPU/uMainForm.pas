@@ -92,11 +92,23 @@ begin
       'ImageToTensorTime: %u(ms)'+sLineBreak+
       'InferenceTime: %u(ms)'+sLineBreak+
       'nmsTime: %u(ms)'+sLineBreak+
-      'nmsTime: %u(ms)'+sLineBreak+
-//
+      'TotalTime: %u(ms)'+sLineBreak+
 //      'nmsEnabled: %g' +
       'ExitCode: %d'
-      ,[w,h,thresholded_cnt,det_cnt,imgResizeTime,img2TensorTime,det_inference_time,det_nms_time{,enable_nms},i]);
+      ,[
+        w,
+        h,
+        thresholded_cnt,
+        det_cnt,
+        imgResizeTime,
+        img2TensorTime,
+        det_inference_time,
+        det_nms_time,
+        imgResizeTime+img2TensorTime+det_inference_time+det_nms_time,
+        {enable_nms,}
+        i
+      ]
+    );
     Button2.Text:='Start Inference';
     RamLabel.Text:=IntToStr(Round(CurrentProcessMemory/1024.0/1024.0)) + ' MB';
 

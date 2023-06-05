@@ -3475,6 +3475,9 @@ initialization
   //  DefaultRunOptions.NewRef();
   //end
 finalization
+  GetApi().ReleaseRunOptions(DefaultRunOptions.p_);
+  GetApi().ReleaseSessionOptions(DefaultSessionOptions.p_);
+  GetApi().ReleaseEnv(DefaultEnv.p_);
 
   if Assigned(@HouseKeeper) then
     if IsConsole then writeLn('clear');
