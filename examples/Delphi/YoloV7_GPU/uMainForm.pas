@@ -39,8 +39,8 @@ procedure TForm1.Button1Click(Sender: TObject);
 
 begin
   DetReset;
-  if FileExists(GetCurrentDir+'..\..\startrek1.jpg') then
-    bmp.LoadFromFile(GetCurrentDir+'..\..\startrek1.jpg')
+  if FileExists(GetCurrentDir+'\..\..\startrek1.jpg') then
+    bmp.LoadFromFile(GetCurrentDir+'\..\..\startrek1.jpg')
   else
     bmp.LoadFromFile('startrek1.jpg');
 
@@ -87,12 +87,16 @@ begin
       'Width: %d'+sLineBreak+
       'Height: %d'+sLineBreak+
       'ThrsholdCount: %d'+sLineBreak+
-      'Detections:%d'+sLineBreak+
+      'Detections: %d'+sLineBreak+
+      'ImageReSizeTime: %u(ms)'+sLineBreak+
+      'ImageToTensorTime: %u(ms)'+sLineBreak+
       'InferenceTime: %u(ms)'+sLineBreak+
-      'nmsTime: %u'+sLineBreak+
+      'nmsTime: %u(ms)'+sLineBreak+
+      'nmsTime: %u(ms)'+sLineBreak+
+//
 //      'nmsEnabled: %g' +
       'ExitCode: %d'
-      ,[w,h,thresholded_cnt,det_cnt,det_inference_time,det_nms_time{,enable_nms},i]);
+      ,[w,h,thresholded_cnt,det_cnt,imgResizeTime,img2TensorTime,det_inference_time,det_nms_time{,enable_nms},i]);
     Button2.Text:='Start Inference';
     RamLabel.Text:=IntToStr(Round(CurrentProcessMemory/1024.0/1024.0)) + ' MB';
 

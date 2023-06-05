@@ -16,7 +16,7 @@ uses
     D1 = 25200;
     NC = 80;
     D2 = NC+5;
-    MODEL_PATH = 'nms_yolov7_25200.onnx';
+    MODEL_PATH = 'yolov7_640x640.onnx';
     score_threshold=0.1;
     nms_threshold=0.5;
     DET_W = 640;  // detector input width, height and depth
@@ -81,6 +81,8 @@ var
   det_areas: array of Single;            // final areas vector  (nmsed_cnt)
   det_cnt: Integer;                      // Count of all detections after NMS
   det_running: Boolean;
+  imgResizeTime: size_t;           // in ms
+  img2TensorTime: size_t;          // in ms
   det_inference_time: size_t;           // inference time in ms
   det_nms_time: size_t;                 // nms time in ms
 
@@ -375,32 +377,41 @@ begin
   DetReset();
   Result:=-1;
   det_running:=True;
-
+  t1:=TThread.GetTickCount;
   try
     ResizeImage(bmp_in,img,OUT_W,OUT_H, DET_W,DET_H);
+    imgResizeTime:=TThread.GetTickCount-t1;
   except
     det_running:=False;
     Result:=-3;
     Exit();
   end;
+  t1:=TThread.GetTickCount;
+  Input:=  TOrtTensor<single>.Create([DET_W,DET_H,DET_D,1]);
 
-  Input:=  TOrtTensor<single>.Create([DET_D,DET_W,DET_H]);
   try
     img.Map(TMapAccess.Read,pixelSpan);
-    for  y:= 0 to img.height-1 do begin
-      for x := 0 to img.width-1 do begin
-          input[0,x,y] := single(TAlphaColorRec(pixelSpan.GetPixel(x,y)).B);
-          input[1,x,y] := single(TAlphaColorRec(pixelSpan.GetPixel(x,y)).G);
-          input[2,x,y] := single(TAlphaColorRec(pixelSpan.GetPixel(x,y)).R);
-      end
-    end;
+    // running through x 1st will help CPU to cache maybe we can SIMD this later?
+    for  y:= 0 to img.height-1 do
+      for x := 0 to img.width-1 do
+          input.Index4[x,y,0,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).B/$ff;
+    for  y:= 0 to img.height-1 do
+      for x := 0 to img.width-1 do
+          input.Index4[x,y,1,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).G/$ff;
+    for  y:= 0 to img.height-1 do
+      for x := 0 to img.width-1 do
+          input.Index4[x,y,2,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).R/$ff;
     img.Unmap(pixelSpan);
+    img.Free;
+    img2TensorTime:=TThread.GetTickCount-t1;
+//    writeln('Image To Tensor : ',img2TensorTime,'(ms)');
+//    exit;
   except
     det_running:=False;
     Result:=-4;
     Exit;
   end;
-  img.Free;
+
   t1:=TThread.GetTickCount;
   try
     inputs.AddOrSetValue('images',input);
