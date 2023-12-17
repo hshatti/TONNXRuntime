@@ -5,7 +5,9 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes,
   FMX.Graphics,FMX.Forms, FMX.Memo,  System.Generics.Collections,System.Generics.Defaults, System.Math,
-  onnxruntime,onnxruntime.dml, onnxruntime_pas_api, FMX.Memo.Types, FMX.Types, FMX.Controls,
+  onnxruntime,
+  onnxruntime.dml,
+  onnxruntime_pas_api, FMX.Memo.Types, FMX.Types, FMX.Controls,
   FMX.Controls.Presentation, FMX.ScrollBox,StrUtils;
 
 
@@ -225,9 +227,8 @@ procedure InitONNXRuntime(Sender: TObject);
 var
   i : Integer;
   cudaOpt:PORTChar;
-  cpok,cpov:array of PORTChar;
-  cpo:POrtCUDAProviderOptionsV2;
-//  so:TORTSessionOptions;
+  cpok,cpov:array of PORTCHAR;
+  cpo:PPOrtCUDAProviderOptionsV2;
   DMLprov:POrtDmlApi;
 begin
 
@@ -242,19 +243,22 @@ begin
   WriteLog('------------------ Start ----------------');
   WriteLog('Providers :'+ join(GetAvailableProviders));
 
-
-//  so:=DefaultSessionOptions.Clone;
-//  setLength(cpok,1);
-//  setLength(cpov,1);
-//  cpok[0]:= 'device_id';
-//  cpov[0]:='0';
+//
+  setLength(cpok,1);
+  setLength(cpov,1);
+  cpok[0]:= 'device_id';
+  cpov[0]:='0';
 //  ThrowOnError(getapi().CreateCUDAProviderOptions(@cpo));
 //  ThrowOnError(getapi().UpdateCUDAProviderOptions(@cpo,@cpok[0],@cpov[0],length(cpok)));
 //  ThrowOnError(getapi().SessionOptionsAppendExecutionProvider_CUDA_V2(DefaultSessionOptions.p_,@cpo));
 
   // DML : Session option must run as a single execution with no memory patterns as per ORT documentation
-  DefaultSessionOptions.SetExecutionMode(ORT_SEQUENTIAL);
+//  DefaultSessionOptions.EnableCpuMemArena();
+//  DefaultSessionOptions.EnableMemPattern();
+
   DefaultSessionOptions.DisableMemPattern();
+  DefaultSessionOptions.SetExecutionMode(ORT_SEQUENTIAL);
+
   ThrowOnError(GetApi().GetExecutionProviderApi('DML',ORT_API_VERSION,@DMLprov));
   // DML : if Primary device is Intel Graphics DML may take some time to load the session,
   // NVIDIA seems to lead faster, try to change the deviceId if so.
@@ -262,7 +266,8 @@ begin
 
   WriteLog(format('Loading Model [%s]...',[ModelPath]));
 
-  session:=TORTSession.Create(Modelpath);
+  if fileexists(model_path) then session:=TORTSession.Create(Modelpath)
+  else session:=TORTSession.Create(ExtractfilePath(Paramstr(0))+'..\Debug\'+Modelpath);
   WriteLog('Model Loaded.');
 
   setLength(InputNames,Session.GetInputCount());
@@ -296,6 +301,7 @@ begin
   // it seems that Ort does not necessarily return the inference device, just the current memory device
   WriteLog('Device Type : '+ifthen(MemInfo.GetDeviceType=OrtMemoryInfoDeviceType_CPU,'CPU','GPU'));
   WriteLog('DeviceId :'     +IntToStr(Ord(MemInfo.GetDeviceId())     ));
+  WriteLog('Version :'     +Global.GetVersionString);
   WriteLog('==============');
 
 end;
@@ -334,6 +340,7 @@ begin
   SetLength(det_areas,       det_cnt);
 end;
 
+{$POINTERMATH ON}
 function InferenceFromBitmap(const bmp_in:TBitmap; enable_nms:Boolean):Integer;
 var
     t1,t2,t3:size_t;
@@ -357,6 +364,8 @@ var
     wp, hp: Single;
     inter, overlap: Single;
     cls_0, cls_p: Integer;
+    D:TArray<Byte>;
+    T:^PSingle;
     //
     ThresholdedDetBoxList: TDetBoxList;
     DB:PDetBox;
@@ -388,19 +397,35 @@ begin
   end;
   t1:=TThread.GetTickCount;
   Input:=  TOrtTensor<single>.Create([DET_W,DET_H,DET_D,1]);
-
   try
+    T:=@Input;
     img.Map(TMapAccess.Read,pixelSpan);
+
+    k:=pixelSpan.Width*pixelSpan.Height;
+    setLength(D,k*det_d);
+
+//    transpose [2,0,1]
+    for y:=0 to input.Shape[0]-1 do
+      for x:=0 to input.Shape[1]-1 do
+        for j:=0 to input.Shape[2]-1 do
+          D[j*input.Shape[1]*input.Shape[0]+y*input.Shape[1]+x]:=PByte(pixelSpan.Data)[y*input.Shape[1]*(input.Shape[2]+1)+x*(input.Shape[2]+1)+j];
+
+    //normalize to singles
+    for i:= 0 to high(D) do
+      input.index1[i]:=D[i] / $ff;
+
+
+
     // running through x 1st will help CPU to cache maybe we can SIMD this later?
-    for  y:= 0 to img.height-1 do
-      for x := 0 to img.width-1 do
-          input.Index4[x,y,0,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).B/$ff;
-    for  y:= 0 to img.height-1 do
-      for x := 0 to img.width-1 do
-          input.Index4[x,y,1,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).G/$ff;
-    for  y:= 0 to img.height-1 do
-      for x := 0 to img.width-1 do
-          input.Index4[x,y,2,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).R/$ff;
+//    for  y:= 0 to img.height-1 do
+//      for x := 0 to img.width-1 do
+//          input.Index4[x,y,0,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).B/$ff;
+//    for  y:= 0 to img.height-1 do
+//      for x := 0 to img.width-1 do
+//          input.Index4[x,y,1,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).G/$ff;
+//    for  y:= 0 to img.height-1 do
+//      for x := 0 to img.width-1 do
+//          input.Index4[x,y,2,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).R/$ff;
     img.Unmap(pixelSpan);
     img.Free;
     img2TensorTime:=TThread.GetTickCount-t1;

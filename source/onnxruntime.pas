@@ -70,7 +70,7 @@ unit onnxruntime;
 interface
 
 uses
-  SysUtils, TypInfo, onnxruntime_pas_api, Generics.Collections, Generics.Defaults{$ifndef fpc}, SyncObjs{$endif};
+  SysUtils, TypInfo, onnxruntime_pas_api, Generics.Collections, Generics.Defaults{$ifndef fpc}, SyncObjs{$else}{,libc}{$endif};
 
 type ortstring = ansistring;
 
@@ -201,7 +201,8 @@ type
 
   end;
   PMemHouseKeeper = ^TMemHouseKeeper;
-  TMemHouseKeeper = TOrderedKeyValueList<Pointer,PLongInt>;
+  //TMemHouseKeeper = TOrderedKeyValueList<Pointer,PLongInt>;
+  TMemHouseKeeper = TOrderedKeyValueList<Pointer,TArray<LongInt>>;
 
   {$endif}
 
@@ -210,7 +211,7 @@ type
   { OrtException }
 
   OrtException = class(Exception)
-
+  public
     code_ :OrtErrorCode;
     property GetErrorCode:OrtErrorCode read code_;
     function what :ortstring;
@@ -523,7 +524,7 @@ type
      * \return A std::vector of Value objects that directly maps to the output_count (eg. output_name[0] is the first entry of the returned vector)
      *)
      function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList):TORTNameValueList; overload;
-     function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList;  Allocator: TOrtAllocator): TORTNameValueList; overload;
+     function Run(const run_options:TORTRunOptions; const Inputs: TORTNameValueList; const Allocator: TOrtAllocator): TORTNameValueList; overload;
      function Run(const run_options:TORTRunOptions; const input_names :PPOrtChar ; const input_values:PORTValue;  input_count:size_t; const output_names:PPOrtChar ; output_names_count:size_t ):TArray<TORTValue>;                            overload;
      function Run(const Inputs:TORTNameValueList):TORTNameValueList; overload;
     (** \brief Run the model returning results in user provided outputs
@@ -545,7 +546,7 @@ type
      * \return a instance of smart pointer that would deallocate the buffer when out of scope.
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
-    function GetInputNameAllocated(index: size_t; allocator: TOrtAllocator
+    function GetInputNameAllocated(index: size_t; const allocator: TOrtAllocator
       ): AllocatedStringPtr;
 
     (** \brief Returns a copy of output name at then specified index.
@@ -555,7 +556,7 @@ type
      * \return a instance of smart pointer that would deallocate the buffer when out of scope.
      *  The OrtAllocator instances must be valid at the point of memory release.
      *)
-    function GetOutputNameAllocated(index: size_t; allocator: TOrtAllocator
+    function GetOutputNameAllocated(index: size_t; const allocator: TOrtAllocator
       ): AllocatedStringPtr;
 
     (** \brief Returns a copy of the overridable initializer name at then specified index.
@@ -876,6 +877,7 @@ type
     //function strcmp(_para1, _para2:POrtChar):longint;cdecl;external 'libc';
     procedure free(addr:pointer);cdecl;external 'libc';
     procedure cfree(addr:pointer);cdecl;external 'libc';
+    function malloc(_para1:size_t):pointer;cdecl;external 'libc';
 implementation
 
 
@@ -1222,7 +1224,7 @@ end;
 
 class operator TOrderedKeyValueList<TK,TV>.Finalize(var dst:TOrderedKeyValueList<TK,TV>);
 begin
-  {$ifdef MEM_TABLE}writeln('***** [',GetTypeName(TypeInfo(TOrderedKeyValueList<TK,TV>)) ,'] Deleted ******') {$endif}
+  {$ifdef MEM_DEBUG}writeln('***** [',PTypeInfo(TypeInfo(TOrderedKeyValueList<TK,TV>)).Name ,'] Deleted ******') {$endif}
 end;
 
 function TOrderedKeyValueList<TK,TV>.Count: integer;
@@ -1656,25 +1658,34 @@ end;
 { TBase }
 
 procedure TORTBase<T>.NewRef;
-var RefCount:PLongInt;
+var
+  //RefCount:PLongInt;
+  RefCount:TArray<LongInt>;
 begin
 
- New(RefCount);
+ //New(RefCount);
+ setLength(RefCount,1);
  {$IFDEF MEM_DEBUG}
  writeln('New @',IntToHex(UIntPtr(p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] @Count [', intToHex(UIntPtr(RefCount)),']');
  {$ENDIF}
- RefCount^ := 0;
+ //RefCount^ := 0;
+ RefCount[0] := 0;
+
  HouseKeeper.AddOrSetValue(p_,RefCount);
  {$ifdef fpc}
- InterLockedIncrement(RefCount^);
+ //InterLockedIncrement(RefCount^);
+ InterLockedIncrement(RefCount[0]);
  {$else}
- TInterLocked.Increment(RefCount^);
+ //TInterLocked.Increment(RefCount^);
+ TInterLocked.Increment(RefCount[0]);
  {$endif}
  {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== new =====',NativeUInt(p_));housekeeper.print;{$endif}
 end;
 
 procedure TORTBase<T>.Assign(const val: Pointer);
-var RefCount:PLongInt;
+var
+  //RefCount:PLongInt;
+  RefCount:TArray<LongInt>;
 begin
   if not HouseKeeper.TryGetValue(p_,RefCount) then RefCount:=nil;
   if RefCount <> nil then
@@ -1685,7 +1696,9 @@ begin
 end;
 
 procedure TORTBase<T>.DecRef;
-var RefCount:PLongInt;
+var
+  //RefCount:PLongInt;
+  RefCount:TArray<LongInt>;
 begin
   if not HouseKeeper.TryGetValue(p_,RefCount) then RefCount:=nil;
   {$IFDEF MEM_DEBUG}
@@ -1697,12 +1710,16 @@ begin
     writeln('  -----> Decrimenting count [',RefCount^,'] to [',RefCount^-1,']') ;
     {$ENDIF}
     {$ifdef fpc}
-    if InterLockedDecrement(RefCount^)=0 then
+    //if InterLockedDecrement(RefCount^)=0 then
+    if InterLockedDecrement(RefCount[0])=0 then
     {$else}
-    if TInterLocked.Decrement(RefCount^)=0 then
+    //if TInterLocked.Decrement(RefCount^)=0 then
+    if TInterLocked.Decrement(RefCount[0])=0 then
     {$endif}
     begin
-      Dispose(RefCount);
+      //Dispose(RefCount);
+      setLength(RefCount,0);
+      RefCount:=nil;
       HouseKeeper.Remove(p_);
       OrtRelease;
       {$IFDEF MEM_DEBUG}writeln('  ---> disposed') ;{$ENDIF}
@@ -1790,9 +1807,10 @@ begin
   //if TypeInfo(T)=TypeInfo(OrtTypeInfo) then
   //    begin v.release;exit end;
 
-  //if TypeInfo(T)=TypeInfo(OrtEnv) then
-  //  if HouseKeeper.ContainsKey(v.p_) then
-  //    writeln('Finalize, OrtEnv, RefCount: ', HouseKeeper[v.p_]^);
+  if TypeInfo(T)=TypeInfo(OrtEnv) then
+    if HouseKeeper.ContainsKey(v.p_) and IsConsole then
+      //writeln('Finalize, OrtEnv, RefCount: ', HouseKeeper[v.p_]^);
+      writeln('Finalize, OrtEnv, RefCount: ', HouseKeeper[v.p_][0]);
   v.DecRef ;
 
 end;
@@ -1802,7 +1820,9 @@ class operator TORTBase<T>.Copy(constref src: TORTBase<T>; var dst: TORTBase<T>)
 {$else}
 class operator TORTBase<T>.Assign(var dst: TORTBase<T>; const [ref] src: TORTBase<T>);
 {$endif}
-var dRefCount,sRefCount:PLongInt;
+var
+  //dRefCount,sRefCount:PLongInt;
+  dRefCount,sRefCount:TArray<LongInt>;
 begin
   if not HouseKeeper.TryGetValue(dst.p_,dRefCount) then dRefCount:=nil;
   if not HouseKeeper.TryGetValue(src.p_,sRefCount) then sRefCount:=nil;
@@ -1815,12 +1835,15 @@ begin
   {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== asn =====',NativeUInt(src.p_),' , ',NativeUInt(dst.p_));{$endif}
   if assigned(sRefCount) then begin
     {$IFDEF MEM_DEBUG}
-    writeLn('  -----> incrementing sCount[',sRefCount^,'] to [',sRefCount^+1,']');
+    //writeLn('  -----> incrementing sCount[',sRefCount^,'] to [',sRefCount^+1,']');
+    writeLn('  -----> incrementing sCount[',sRefCount[0],'] to [',sRefCount[0]+1,']');
     {$ENDIF}
     {$ifdef fpc}
-    InterLockedIncrement(sRefCount^);
+    //InterLockedIncrement(sRefCount^);
+    InterLockedIncrement(sRefCount[0]);
     {$else}
-    TInterLocked.Increment(sRefCount^);
+    //TInterLocked.Increment(sRefCount^);
+    TInterLocked.Increment(sRefCount[0]);
     {$endif}
 //    {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== asn =====');housekeeper.print;{$endif}
   end;
@@ -1834,7 +1857,9 @@ begin
 
 {$ifdef fpc}
 class operator TORTBase<T>.AddRef(var src: TORTBase<T>);
-var RefCount:PLongInt;
+var
+  //RefCount:PLongInt;
+  RefCount:TArray<LongInt>;
 begin
   if not HouseKeeper.TryGetValue(src.p_,RefCount) then RefCount:=nil;
   {$IFDEF MEM_DEBUG}
@@ -1843,12 +1868,13 @@ begin
   {$ifdef MEM_TABLE}writeln(GetTypeName(TypeInfo(T)),sLineBreak,'===== new =====');{$endif}
   if assigned(RefCount) then begin
     {$IFDEF MEM_DEBUG}Writeln('   -----> Incrementing count [',RefCount^,'] to [',RefCount^+1,']');  {$ENDIF}
-    InterLockedIncrement(RefCount^);
+    //InterLockedIncrement(RefCount^);
+    InterLockedIncrement(RefCount[0]);
     {$IFDEF MEM_DEBUG}
     writeln('   Added --->  @',IntToHex(UIntPtr(src.p_)),'[',PTypeInfo(TypeInfo(T)).Name,'] sCount [', RefCount^,']');
     {$ENDIF}
     {$ifdef MEM_TABLE}housekeeper.print;{$endif}
-  end
+  end;
   //if TypeInfo(T)=TypeInfo(OrtEnv) then
   //  writeln('AddRef, OrtEnv, RefCount: ', HouseKeeper[src.p_]^);
   {$IFDEF MEM_DEBUG}Writeln('');  {$ENDIF}
@@ -2493,7 +2519,7 @@ begin
   Run(run_options,Inputs,DefaultAllocator)
 end;
 
-function TORTSessionHelper.run(const run_options: TORTRunOptions; const Inputs: TORTNameValueList; Allocator: TOrtAllocator): TORTNameValueList;
+function TORTSessionHelper.run(const run_options: TORTRunOptions; const Inputs: TORTNameValueList; const Allocator: TOrtAllocator): TORTNameValueList;
 var
   InputNames:TArray<ortstring>;
   InputValues:TArray<TORTValue>;
@@ -2501,6 +2527,7 @@ var
   OutputValues:TArray<TORTValue>;
   i:size_t;
 begin
+  Assert(assigned(p_),'no model is loaded!, invoke [TORTSession.Create(modelPath)] 1st.');
   setLength(InputNames,GetInputCount());
   setLength(InputValues,length(InputNames));
   setLength(OutputNames,GetOutputCount());
@@ -2544,6 +2571,7 @@ procedure TORTSessionHelper.Run(const run_options: TORTRunOptions;
   const input_names: PPOrtChar; const input_values: PORTValue; input_count: size_t;
   const output_names: PPOrtChar; output_values: PORTValue; output_count: size_t);
 begin
+  Assert(assigned(p_),'no model is loaded!, invoke [TORTSession.Create(modelPath)] 1st.');
   {$if SizeOf(TORTValue)<>SizeOf(POrtValue)}
     {$error Value is really just an array of OrtValue* in memory, so we can reinterpret_cast safely}
   {$endif}
@@ -2574,7 +2602,7 @@ begin
 end;
 
 function TORTSessionHelper.GetInputNameAllocated(index: size_t;
-  allocator: TOrtAllocator): AllocatedStringPtr;
+  const allocator: TOrtAllocator): AllocatedStringPtr;
 var _out:POrtChar;
 begin
   ThrowOnError(GetApi().SessionGetInputName(p_, index, allocator.p_, @_out));
@@ -2584,7 +2612,7 @@ begin
 end;
 
 function TORTSessionHelper.GetOutputNameAllocated(index: size_t;
-  allocator: TOrtAllocator): AllocatedStringPtr;
+  const allocator: TOrtAllocator): AllocatedStringPtr;
 var  _out:POrtChar;
 begin
   ThrowOnError(GetApi().SessionGetOutputName(p_, index, allocator.p_, @_out));
@@ -3480,7 +3508,7 @@ finalization
   GetApi().ReleaseEnv(DefaultEnv.p_);
 
   if Assigned(@HouseKeeper) then
-    if IsConsole then writeLn('clear');
+    if IsConsole then writeLn('Housekeeper :');
 
 
 end.

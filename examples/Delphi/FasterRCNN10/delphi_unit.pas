@@ -139,6 +139,7 @@ type
     procedure ComboBox1Change(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure CheckBox1Change(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -374,6 +375,34 @@ begin
   freeAndNil(bmp);
 end;
 
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  inputs,OutPuts:TORTNameValueList;
+  Inputx_s,inputy_s,output_s:TOrtTensor<single>;
+  i:int64_t;
+begin
+  try
+    //ModelPath:='model\'+ComboBox1.Text;
+    ModelPath:='addf.onnx';
+    //session:=TORTSession.create(modelPath);
+    Inputx_s:=TOrtTensor<single>.Create([10]);
+    Inputy_s:=TOrtTensor<single>.Create([10]);
+    for i:=0 to Inputx_s.Shape[0]-1 do
+      begin
+       Inputx_s.index1[i]:=(i+1)*0.2;
+       Inputy_S.index1[i]:=(i+1);
+      end;
+    inputs['X']:=inputx_s;
+    inputs['Y']:=inputy_S;
+    session:=TORTSession.Create(modelpath);
+    Outputs:=session.Run(Inputs);
+    output_s:= Outputs.Values[0];
+//    writelog('result : '+join(output_s.shape)+' '+output_s.ToString) ;
+  finally
+
+  end;
+end;
 
 procedure TForm1.CheckBox1Change(Sender: TObject);
 begin
