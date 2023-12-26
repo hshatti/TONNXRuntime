@@ -42,6 +42,7 @@ type
     ScrollBox2: TScrollBox;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
+    procedure BitBtn2Click(Sender: TObject);
     procedure WriteLog(const str:string);
     procedure BitBtn1Click(Sender: TObject);
     procedure CheckBox1Change(Sender: TObject);
@@ -498,6 +499,39 @@ end;
 procedure TForm1.WriteLog(const str:string);
 begin
   memo1.lines.Add(str);
+end;
+
+procedure TForm1.BitBtn2Click(Sender: TObject);
+  var
+  inputs,OutPuts:TORTNameValueList;
+  Inputx_s,inputy_s,output_s:TOrtTensor<single>;
+  i:int64_t;
+begin
+    ModelPath:='model\'+ComboBox1.Text;
+    Inputx_s:=TOrtTensor<single>.Create([10]);
+    Inputy_s:=TOrtTensor<single>.Create([10]);
+    for i:=0 to Inputx_s.Shape[0]-1 do
+      begin
+       Inputx_s.index1[i]:=(i+1)*0.2;
+       Inputy_S.index1[i]:=(i+1);
+      end;
+    inputs['X']:=inputx_s;
+    inputs['Y']:=inputy_S;
+    Outputs:=session.Run(Inputs);
+    output_s:= Outputs.Values[0];
+    writelog('result : '+join(output_s.shape)+' '+output_s.ToString) ;
+
+    for i:=0 to Inputx_s.Shape[0]-1 do
+      begin
+       Inputx_s.index1[i]:=(i+1)*2;
+       Inputy_S.index1[i]:=(i+1);
+      end;
+    inputs['X']:=inputx_s;
+    inputs['Y']:=inputy_S;
+    Outputs:=session.Run(Inputs);
+    output_s:= Outputs.Values[0];
+    writelog('result : '+join(output_s.shape)+' '+output_s.ToString) ;
+
 end;
 
 end.
