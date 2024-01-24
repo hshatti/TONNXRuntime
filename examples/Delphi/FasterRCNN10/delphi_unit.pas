@@ -287,7 +287,7 @@ var
                          [ 102.9801, 115.9465, 122.7717] ;
 procedure TForm1.Button1Click(Sender: TObject);
 var Ratio:single; bmp:TBitmap;
-    t1, paddedWidth, paddedHeight:size_t;
+    t1, marginX, marginY, paddedWidth, paddedHeight:int64;
     y,x:int64;
     inSize, OutSize:TSize;
     input,boxes,confidence:TOrtTensor<single>;
@@ -326,15 +326,18 @@ begin
   t1:=TThread.GetTickCount;
   paddedWidth  := Ceil(bmp.width  / 32) * 32;
   paddedHeight := Ceil(bmp.Height / 32) * 32;
+  marginX := paddedWidth - bmp.Width;
+  marginY := paddedHeight - bmp.Height;
   TensorDim := [3, paddedWidth, paddedHeight];
-  Input:=TOrtTensor<single>.Create([paddedHeight,paddedWidth,3 ]);
+  Input:=TOrtTensor<single>.Create([paddedWidth, paddedHeight, 3 ]);
   bmp.Map(TMapAccess.Read,pixelSpan);
-  for  y:= paddedHeight - bmp.Height to bmp.Height-1 do begin
-    for x := paddedWidth - bmp.Width to bmp.Width-1 do begin
-        ;
-        input[x,y,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).B - mean[0];
-        input[x,y,1] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).G - mean[1];
-        input[x,y,2] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).R - mean[2];
+  for  y:= 0 to bmp.Height - marginY -1 do begin
+    for x := 0 to bmp.Width - marginX -1 do try
+        input[x ,y ,0] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).B - mean[0];
+        input[x ,y ,1] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).G - mean[1];
+        input[x ,y ,2] := TAlphaColorRec(pixelSpan.GetPixel(x,y)).R - mean[2];
+    except on e:Exception do
+      raise Exception.CreateFmt('%s at [ x:%d, y:%d]',[e.Message, x, y ])
     end
   end;
   bmp.Unmap(pixelSpan);

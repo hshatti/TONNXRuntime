@@ -379,7 +379,7 @@ procedure TForm1.BitBtn1Click(Sender: TObject);
 //var i,j:integer;
 
 var Ratio:single; bmp:TBitmap;
-    t1, paddedWidth, paddedHeight:size_t;
+    t1, paddedWidth, paddedHeight, marginX, marginY:size_t;
     y,x:int64;
     inSize, OutSize:TSize;
     input,boxes,confidence:TOrtTensor<single>;
@@ -426,10 +426,12 @@ begin
   t1:=GetTickCount64;
   paddedWidth  := Ceil(bmp.width  / 32) * 32;
   paddedHeight := Ceil(bmp.Height / 32) * 32;
-  Input:=TOrtTensor<single>.Create([paddedHeight,paddedWidth,3 ]);
-  for  y:= paddedHeight - bmp.Height to bmp.Height-1 do begin
+  marginX := paddedWidth - bmp.Width;
+  marginY := paddedHeight - bmp.Height;
+  Input:=TOrtTensor<single>.Create([paddedWidth,paddedHeight,3 ]);
+  for  y:= 0 to bmp.Height - marginY -1 do begin
     pixelSpan := bmp.scanline[y];
-    for x := paddedWidth - bmp.Width to bmp.Width-1 do begin
+    for x := 0 to bmp.Width - marginX - 1 do begin
         input[x,y,0] := pixelSpan[x].B - mean[0];
         input[x,y,1] := pixelSpan[x].G - mean[1];
         input[x,y,2] := pixelSpan[x].R - mean[2];
@@ -484,6 +486,7 @@ end;
 procedure TForm1.FormShow(Sender: TObject);
 var sr:TSearchRec;
 begin
+  SetCurrentDir(ExtractFilePath( ParamStr(0)));
   WriteLog('Providers : ['+ Join(GetAvailableProviders())+']');
     WriteLog('---------------------------------------');
   ComboBox1.Items.text:='-- Empty --';

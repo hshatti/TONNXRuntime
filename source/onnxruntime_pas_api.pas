@@ -56,7 +56,7 @@ interface
 
 {$ifndef SIZE_MAX}
   {$ifdef WIN64}
-    const SIZE_MAX = $ffffffffffffffff;
+    const SIZE_MAX = $fffffffffffffff;
   {$else}
     const SIZE_MAX : size_t = $ffffffff;
   {$endif}

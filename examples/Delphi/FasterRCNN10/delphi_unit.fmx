@@ -64,6 +64,7 @@ object Form1: TForm1
       Size.PlatformDefault = False
       TabOrder = 5
       Text = 'Test Tensor'
+      Visible = False
       OnClick = Button2Click
     end
     object Label2: TLabel

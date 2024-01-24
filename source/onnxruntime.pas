@@ -304,8 +304,8 @@ type
     FShape:TArray<int64_t>;
     FSize:Size_t;
     function Getindex1(x: int64_t): T;
-    function Getindex3( x,y,z: int64_t): T;
     function Getindex2(x,y: int64_t): T;
+    function Getindex3( x,y,z: int64_t): T;    
     function GetIndex4(x,y,z,w: int64_t): T;
     procedure Setindex1(x: int64_t; AValue: T);
     procedure Setindex3(x,y,z: int64_t; AValue: T);
@@ -917,7 +917,7 @@ end;
 
 function TORTTensor<T>.Getindex3( x,y,z: int64_t): T;
 begin
-  result:=FData[idx(z,y,x)]
+  result:=FData[idx(x,y,z)]
 end;
 
 function TORTTensor<T>.Getindex2( x,y: int64_t): T;
@@ -937,7 +937,7 @@ end;
 
 procedure TORTTensor<T>.Setindex3( x, y, z: int64_t; AValue: T);
 begin
-  FData[z*FShape[1]*FShape[0]+y*FShape[0]+x]:=AValue
+  FData[z*FShape[1]*FShape[0] + y*FShape[0] + x]:=AValue
 end;
 
 procedure TORTTensor<T>.Setindex2(x,y: int64_t; AValue: T);
