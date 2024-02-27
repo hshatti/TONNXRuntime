@@ -8,7 +8,6 @@
       <Unit>
         <Filename Value="FasterRCNN10.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <CursorPos X="13" Y="3"/>
         <UsageCount Value="201"/>
@@ -21,8 +20,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
-        <TopLine Value="415"/>
-        <CursorPos X="85" Y="437"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="183"/>
+        <CursorPos X="9" Y="201"/>
         <UsageCount Value="201"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -263,7 +263,7 @@
     <Debugger>
       <Backend Value="{90001D95-20C3-4A53-B6D8-CB656D13C193}"/>
     </Debugger>
-    <JumpHistory HistoryIndex="18">
+    <JumpHistory HistoryIndex="21">
       <Position>
         <Filename Value="unit1.pas"/>
         <Caret Line="435" TopLine="415"/>
@@ -339,6 +339,18 @@
       <Position>
         <Filename Value="unit1.pas"/>
         <Caret Line="437" Column="85" TopLine="415"/>
+      </Position>
+      <Position>
+        <Filename Value="FasterRCNN10.lpr"/>
+        <Caret Line="3" Column="13"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="201" Column="14" TopLine="183"/>
+      </Position>
+      <Position>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="206" Column="27" TopLine="183"/>
       </Position>
     </JumpHistory>
     <RunParams>

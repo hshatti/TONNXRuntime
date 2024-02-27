@@ -90,7 +90,7 @@ begin
 
 * [CPU : Faster RCNN10 example](/examples) folder
 
-  Download `FasterRCNN-10.onnx` from [here](https://github.com/onnx/models/tree/main/vision/object_detection_segmentation/faster-rcnn/model)
+  Download `FasterRCNN-10.onnx` from [here](https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/faster-rcnn/model)
 
 
 * [GPU : Yolo V7 (DirectML)](/examples) folder

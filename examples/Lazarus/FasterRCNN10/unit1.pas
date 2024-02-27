@@ -186,7 +186,7 @@ implementation
 
 procedure ScaleImage32<T>(const inSize,outSize:TSize;const inData, outData:T;scaleType:TScaleType=stNearest);
 var i,j,i1,j2:integer;p1,p2:TBGRA; pDst,pSrc,pSrc2:PBGRA; tx,ty:single;
-function lerp(const a,b:TBGRA;const t:single):TBGRA; inline;
+function lerp(const a,b:TBGRA;const t:single):TBGRA; //inline;
 
 begin
 
