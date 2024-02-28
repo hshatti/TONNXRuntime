@@ -73,7 +73,7 @@ begin
     i:integer;
     outputs : TORTNameValueList;
     outTensor : TORTTensor<single>
-  bagin 
+  begin 
       outputs   := session.run(inputs);
       outTensor := outputs['result']
      
